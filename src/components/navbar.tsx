@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AddListingLink } from "@/components/nav/add-listing-link";
 import { NavAuth } from "@/components/auth/nav-auth";
 import { Logo } from "@/components/logo/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -16,6 +17,7 @@ export function Navbar() {
           <Logo size="sm" />
         </Link>
         <div className="flex items-center gap-3">
+          <AddListingLink />
           <NavAuth />
           <ThemeToggle />
         </div>

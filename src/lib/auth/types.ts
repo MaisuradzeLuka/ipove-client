@@ -1,5 +1,3 @@
-export type UserCategory = "developer" | "handyman";
-
 export type User = {
   userId: string;
   email: string;
@@ -8,7 +6,6 @@ export type User = {
   phoneNumber: number | null;
   address: string | null;
   city: string | null;
-  category: UserCategory | null;
   avatar: string | null;
   examples: string[];
   isComplete: boolean;
@@ -23,7 +20,6 @@ export type UpdateUserPayload = {
   phoneNumber: number;
   address: string;
   city: string;
-  category: UserCategory;
   avatar?: string;
   examples?: string[];
   createdAt: string | Date;

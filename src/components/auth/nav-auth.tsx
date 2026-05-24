@@ -62,6 +62,13 @@ export function NavAuth() {
             {userDisplayName(user)}
           </p>
           <Link
+            href="/dashboard"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-sm text-foreground transition-colors hover:bg-background-muted">
+            {messages.nav.myListings}
+          </Link>
+          <Link
             href="/profile"
             role="menuitem"
             onClick={() => setOpen(false)}

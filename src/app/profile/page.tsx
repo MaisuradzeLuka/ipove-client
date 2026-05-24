@@ -7,10 +7,6 @@ import { AvatarUpload } from "@/components/auth/avatar-upload";
 import { FormField } from "@/components/auth/form-field";
 import { useAuth } from "@/contexts/auth-context";
 import { messages } from "@/lib/i18n/messages";
-import type { UserCategory } from "@/lib/auth/types";
-
-const selectClass =
-  "w-full rounded-lg border border-border bg-background-surface px-4 py-2.5 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -21,7 +17,6 @@ export default function ProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
-  const [category, setCategory] = useState<UserCategory>("developer");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -40,7 +35,6 @@ export default function ProfilePage() {
     setPhoneNumber(user.phoneNumber != null ? String(user.phoneNumber) : "");
     setAddress(user.address ?? "");
     setCity(user.city ?? "");
-    setCategory(user.category ?? "developer");
     setAvatarUrl(user.avatar);
   }, [user]);
 
@@ -72,7 +66,6 @@ export default function ProfilePage() {
       phoneNumber: phone,
       address: address.trim(),
       city: city.trim(),
-      category,
       avatar: avatarUrl ?? undefined,
       examples: user.examples,
       createdAt: user.createdAt,
@@ -164,21 +157,6 @@ export default function ProfilePage() {
             onChange={(e) => setCity(e.target.value)}
           />
 
-          <div className="space-y-1.5">
-            <label htmlFor="category" className="text-sm font-medium text-foreground">
-              {messages.profile.category}
-            </label>
-            <select
-              id="category"
-              required
-              value={category}
-              onChange={(e) => setCategory(e.target.value as UserCategory)}
-              className={selectClass}>
-              <option value="developer">{messages.profile.categoryDeveloper}</option>
-              <option value="handyman">{messages.profile.categoryHandyman}</option>
-            </select>
-          </div>
-
           <button
             type="submit"
             disabled={submitting}
@@ -187,6 +165,22 @@ export default function ProfilePage() {
           </button>
         </form>
       </article>
+
+      <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+        <Link
+          href="/dashboard"
+          className="text-sm font-medium text-foreground-accent hover:text-accent-hover">
+          {messages.profile.myListings}
+        </Link>
+        <span className="hidden text-foreground-subtle sm:inline" aria-hidden>
+          ·
+        </span>
+        <Link
+          href="/dashboard/listings/new"
+          className="text-sm font-medium text-foreground-accent hover:text-accent-hover">
+          {messages.profile.addListing}
+        </Link>
+      </div>
 
       <p className="mt-6 text-center text-sm text-foreground-muted">
         <Link
