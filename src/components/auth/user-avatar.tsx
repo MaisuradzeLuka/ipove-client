@@ -49,7 +49,8 @@ export function UserAvatar({
     <span
       aria-hidden
       title={label}
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-foreground-accent ring-2 ring-border ${sizeClass} ${className}`}>
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-foreground-accent ring-2 ring-border cursor-pointer ${sizeClass} ${className}`}
+    >
       {initials(user)}
     </span>
   );

@@ -28,7 +28,7 @@ export function PasswordField({
 
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
+      <label htmlFor={id} className="text-sm font-medium text-foreground mb-2">
         {label}
       </label>
       <div className="relative">
@@ -39,7 +39,7 @@ export function PasswordField({
           aria-describedby={
             error ? `${id}-error` : hint ? `${id}-hint` : undefined
           }
-          className={`${inputClass} ${error ? "border-error" : ""} ${className}`}
+          className={`${inputClass} ${error ? "border-error" : ""} ${className} mt-2`}
           {...props}
         />
         <button
@@ -49,7 +49,8 @@ export function PasswordField({
           aria-label={
             visible ? messages.auth.hidePassword : messages.auth.showPassword
           }
-          aria-pressed={visible}>
+          aria-pressed={visible}
+        >
           {visible ? (
             <HiEyeSlash className={iconClass} aria-hidden />
           ) : (

@@ -20,7 +20,7 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
+      <label htmlFor={id} className="mb-2 block text-sm font-medium text-foreground">
         {label}
       </label>
       <input

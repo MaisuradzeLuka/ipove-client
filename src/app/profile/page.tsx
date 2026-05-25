@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { AvatarUpload } from "@/components/auth/avatar-upload";
 import { FormField } from "@/components/auth/form-field";
+import { ChangePasswordLink } from "@/components/profile/change-password-link";
 import { useAuth } from "@/contexts/auth-context";
+import { userDisplayName } from "@/lib/auth/display";
 import { messages } from "@/lib/i18n/messages";
 
 export default function ProfilePage() {
@@ -40,8 +41,10 @@ export default function ProfilePage() {
 
   if (isLoading || !user) {
     return (
-      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-12">
-        <p className="text-sm text-foreground-muted">{messages.profile.loading}</p>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-12">
+        <p className="text-sm text-foreground-muted">
+          {messages.profile.loading}
+        </p>
       </main>
     );
   }
@@ -67,7 +70,6 @@ export default function ProfilePage() {
       address: address.trim(),
       city: city.trim(),
       avatar: avatarUrl ?? undefined,
-      examples: user.examples,
       createdAt: user.createdAt,
       updatedAt: new Date().toISOString(),
       isComplete: true,
@@ -81,41 +83,47 @@ export default function ProfilePage() {
     setSuccess(messages.profile.saved);
   }
 
+  const displayName =
+    [name, lastname].filter(Boolean).join(" ").trim() || userDisplayName(user);
+
   return (
-    <main className="mx-auto w-full max-w-lg flex-1 px-6 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-        {messages.profile.title}
-      </h1>
-      <p className="mt-2 text-sm text-foreground-muted">
-        {user.email} — {messages.profile.savedVia}{" "}
-        <code className="text-foreground-accent">ipove-server</code>
-      </p>
+    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <header className="border-b border-border pb-6">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+          {messages.profile.title}
+        </h1>
+      </header>
 
-      <article className="mt-8 rounded-xl bg-background-surface p-6 shadow-sm ring-1 ring-border">
-        <AvatarUpload
-          user={user}
-          previewUrl={avatarUrl}
-          onPreviewChange={setAvatarUrl}
-          onUpload={uploadAvatar}
-        />
+      <article className="mt-8 rounded-xl bg-background-surface p-5 shadow-sm ring-1 ring-border sm:p-6 lg:p-8">
+        <div className="border-b border-border pb-6">
+          <AvatarUpload
+            user={user}
+            displayName={displayName}
+            previewUrl={avatarUrl}
+            onPreviewChange={setAvatarUrl}
+            onUpload={uploadAvatar}
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5 lg:mt-8">
           {error && (
             <div
               role="alert"
-              className="rounded-lg bg-error-soft px-4 py-3 text-sm text-error-foreground">
+              className="rounded-lg bg-error-soft px-4 py-3 text-sm text-error-foreground"
+            >
               {error}
             </div>
           )}
           {success && (
             <div
               role="status"
-              className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success-foreground">
+              className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success-foreground"
+            >
               {success}
             </div>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <FormField
               id="name"
               label={messages.profile.firstName}
@@ -132,14 +140,23 @@ export default function ProfilePage() {
             />
           </div>
 
-          <FormField
-            id="phone"
-            label={messages.profile.phone}
-            type="tel"
-            required
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
+          <div className="grid gap-5 lg:grid-cols-2">
+            <FormField
+              id="phone"
+              label={messages.profile.phone}
+              type="tel"
+              required
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+            <FormField
+              id="city"
+              label={messages.profile.city}
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
+          </div>
 
           <FormField
             id="address"
@@ -149,46 +166,21 @@ export default function ProfilePage() {
             onChange={(e) => setAddress(e.target.value)}
           />
 
-          <FormField
-            id="city"
-            label={messages.profile.city}
-            required
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-          />
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-foreground-on-accent transition-colors hover:bg-accent-hover active:bg-accent-active disabled:cursor-not-allowed disabled:opacity-60">
-            {submitting ? messages.profile.submitting : messages.profile.submit}
-          </button>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end mb-4">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-foreground-on-accent transition-colors hover:bg-accent-hover active:bg-accent-active disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-44"
+            >
+              {submitting
+                ? messages.profile.submitting
+                : messages.profile.submit}
+            </button>
+          </div>
         </form>
+
+        <ChangePasswordLink />
       </article>
-
-      <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <Link
-          href="/dashboard"
-          className="text-sm font-medium text-foreground-accent hover:text-accent-hover">
-          {messages.profile.myListings}
-        </Link>
-        <span className="hidden text-foreground-subtle sm:inline" aria-hidden>
-          ·
-        </span>
-        <Link
-          href="/dashboard/listings/new"
-          className="text-sm font-medium text-foreground-accent hover:text-accent-hover">
-          {messages.profile.addListing}
-        </Link>
-      </div>
-
-      <p className="mt-6 text-center text-sm text-foreground-muted">
-        <Link
-          href="/"
-          className="text-foreground-accent hover:text-accent-hover">
-          {messages.profile.backHome}
-        </Link>
-      </p>
     </main>
   );
 }

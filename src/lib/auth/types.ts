@@ -7,7 +7,6 @@ export type User = {
   address: string | null;
   city: string | null;
   avatar: string | null;
-  examples: string[];
   isComplete: boolean;
   createdAt: string;
   updatedAt: string;
@@ -21,7 +20,6 @@ export type UpdateUserPayload = {
   address: string;
   city: string;
   avatar?: string;
-  examples?: string[];
   createdAt: string | Date;
   updatedAt: string | Date;
   isComplete: boolean;

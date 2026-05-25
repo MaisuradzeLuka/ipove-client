@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { HiOutlinePencil } from "react-icons/hi2";
 import { UserAvatar } from "@/components/auth/user-avatar";
 import { messages } from "@/lib/i18n/messages";
 import type { User } from "@/lib/auth/types";
 
 type AvatarUploadProps = {
   user: Pick<User, "name" | "lastname" | "email" | "avatar">;
+  displayName: string;
   previewUrl: string | null;
   onPreviewChange: (url: string | null) => void;
   onUpload: (file: File) => Promise<string | null>;
@@ -16,6 +18,7 @@ const MAX_BYTES = 2 * 1024 * 1024;
 
 export function AvatarUpload({
   user,
+  displayName,
   previewUrl,
   onPreviewChange,
   onUpload,
@@ -62,29 +65,43 @@ export function AvatarUpload({
     avatar: previewUrl ?? user.avatar,
   };
 
+  const hasPhoto = Boolean(previewUrl || user.avatar);
+
+  function openFilePicker() {
+    inputRef.current?.click();
+  }
+
   return (
-    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
-      <UserAvatar user={displayUser} size="lg" />
-      <div className="flex flex-col gap-2 text-center sm:text-left">
-        <p className="text-sm font-medium text-foreground">
-          {messages.profile.photoTitle}
-        </p>
-        <p className="text-xs text-foreground-muted">{messages.profile.photoHint}</p>
-        <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-4">
+        <div className="relative shrink-0">
+          <UserAvatar user={displayUser} size="lg" className="size-20 text-xl" />
           <button
             type="button"
             disabled={uploading}
-            onClick={() => inputRef.current?.click()}
-            className="rounded-lg border border-border bg-background-surface px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-background-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:opacity-60">
-            {uploading
-              ? messages.profile.uploading
-              : previewUrl || user.avatar
-                ? messages.profile.changePhoto
-                : messages.profile.uploadPhoto}
+            onClick={openFilePicker}
+            className="absolute -bottom-0.5 -right-0.5 inline-flex size-7 items-center justify-center rounded-full border border-border bg-background-surface text-foreground shadow-sm transition-colors hover:bg-background-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed disabled:opacity-60"
+            aria-label={
+              uploading
+                ? messages.profile.uploading
+                : hasPhoto
+                  ? messages.profile.changePhoto
+                  : messages.profile.uploadPhoto
+            }>
+            <HiOutlinePencil className="size-3.5" aria-hidden />
           </button>
         </div>
-        {error && <p className="text-xs text-error">{error}</p>}
+
+        <div className="min-w-0">
+          <p className="truncate text-base font-semibold text-foreground">
+            {displayName}
+          </p>
+          <p className="truncate text-sm text-foreground-muted">{user.email}</p>
+        </div>
       </div>
+
+      {error && <p className="text-xs text-error">{error}</p>}
+
       <input
         ref={inputRef}
         type="file"

@@ -25,10 +25,7 @@ export function NavAuth() {
 
   if (isLoading) {
     return (
-      <div
-        className="size-8 rounded-full bg-background-muted"
-        aria-hidden
-      />
+      <div className="size-8 rounded-full bg-background-muted" aria-hidden />
     );
   }
 
@@ -36,7 +33,8 @@ export function NavAuth() {
     return (
       <Link
         href="/sign-in"
-        className="rounded-lg px-3 py-1.5 text-sm font-medium text-foreground-accent transition-colors hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset">
+        className="rounded-lg px-3 py-1.5 text-sm font-medium text-foreground-accent transition-colors hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset"
+      >
         {messages.nav.logIn}
       </Link>
     );
@@ -50,14 +48,16 @@ export function NavAuth() {
         className="rounded-full outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset"
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label={messages.nav.accountMenu}>
+        aria-label={messages.nav.accountMenu}
+      >
         <UserAvatar user={user} size="sm" />
       </button>
 
       {open && (
         <div
           role="menu"
-          className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-border bg-background-surface py-1 shadow-md">
+          className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-border bg-background-surface py-1 shadow-md"
+        >
           <p className="truncate px-3 py-2 text-xs text-foreground-muted">
             {userDisplayName(user)}
           </p>
@@ -65,14 +65,16 @@ export function NavAuth() {
             href="/dashboard"
             role="menuitem"
             onClick={() => setOpen(false)}
-            className="block px-3 py-2 text-sm text-foreground transition-colors hover:bg-background-muted">
+            className="block px-3 py-2 text-sm text-foreground transition-colors hover:bg-background-muted"
+          >
             {messages.nav.myListings}
           </Link>
           <Link
             href="/profile"
             role="menuitem"
             onClick={() => setOpen(false)}
-            className="block px-3 py-2 text-sm text-foreground transition-colors hover:bg-background-muted">
+            className="block px-3 py-2 text-sm text-foreground transition-colors hover:bg-background-muted"
+          >
             {messages.nav.profile}
           </Link>
           <button
@@ -82,7 +84,8 @@ export function NavAuth() {
               setOpen(false);
               void signOut();
             }}
-            className="w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-background-muted">
+            className="w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-background-muted"
+          >
             {messages.nav.signOut}
           </button>
         </div>
