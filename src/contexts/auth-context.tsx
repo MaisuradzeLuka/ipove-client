@@ -14,6 +14,7 @@ import { ApiError } from "@/lib/api/client";
 import { authClient } from "@/lib/auth-client";
 import { messages, translateApiError } from "@/lib/i18n";
 import type { UpdateUserPayload, User } from "@/lib/auth/types";
+import { verifyEmailCallbackURL } from "@/lib/auth/verify-email";
 
 type AuthContextValue = {
   user: User | null;
@@ -28,6 +29,7 @@ type AuthContextValue = {
   signInWithGoogle: (callbackURL?: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<string | null>;
+  resendVerificationEmail: (email: string) => Promise<string | null>;
   updateProfile: (payload: UpdateUserPayload) => Promise<string | null>;
   uploadAvatar: (file: File) => Promise<string | null>;
 };
@@ -94,11 +96,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password: input.password,
         name: email.split("@")[0] || "User",
+        callbackURL: verifyEmailCallbackURL(),
       });
 
       if (error) return authClientErrorMessage(error);
 
-      await refreshUser();
       return null;
     },
     [refreshUser],
@@ -140,6 +142,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setUser(null);
     }
+  }, []);
+
+  const resendVerificationEmail = useCallback(async (email: string) => {
+    const { error } = await authClient.sendVerificationEmail({
+      email: email.trim(),
+      callbackURL: verifyEmailCallbackURL(),
+    });
+
+    if (error) return authClientErrorMessage(error);
+    return null;
   }, []);
 
   const requestPasswordReset = useCallback(async (email: string) => {
@@ -185,6 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       signOut,
       requestPasswordReset,
+      resendVerificationEmail,
       updateProfile,
       uploadAvatar,
     }),
@@ -197,6 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       signOut,
       requestPasswordReset,
+      resendVerificationEmail,
       updateProfile,
       uploadAvatar,
     ],

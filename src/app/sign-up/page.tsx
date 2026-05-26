@@ -39,7 +39,9 @@ export default function SignUpPage() {
       setError(err);
       return;
     }
-    router.push("/profile");
+    router.push(
+      `/check-email?email=${encodeURIComponent(email.trim())}`,
+    );
     router.refresh();
   }
 

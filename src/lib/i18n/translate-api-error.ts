@@ -12,6 +12,8 @@ const API_ERROR_MAP: Record<string, string> = {
   "Current password is incorrect": "მიმდინარე პაროლი არასწორია",
   "Password changed successfully": "პაროლი წარმატებით შეიცვალა",
   "Invalid email or password": "არასწორი ელ. ფოსტა ან პაროლი",
+  "Email not verified": messages.auth.emailNotVerified,
+  "Email already verified": "ელ. ფოსტა უკვე დადასტურებულია",
   "Authentication required": "საჭიროა ავტორიზაცია",
   "User not found": "მომხმარებელი ვერ მოიძებნა",
   "Internal server error": "სერვერის შეცდომა",

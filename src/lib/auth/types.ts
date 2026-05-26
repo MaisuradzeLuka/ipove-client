@@ -8,6 +8,7 @@ export type User = {
   city: string | null;
   avatar: string | null;
   isComplete: boolean;
+  emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
 };
