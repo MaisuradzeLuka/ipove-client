@@ -51,7 +51,7 @@ export function CategorySectionsFeed({ sections }: CategorySectionsFeedProps) {
 
           <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {listings.map((listing) => (
-              <li key={listing.listingId}>
+              <li key={listing.listingId} className="h-full">
                 <ListingCard listing={listing} />
               </li>
             ))}

@@ -6,9 +6,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
 import { PasswordField } from "@/components/auth/password-field";
 import { useAuth } from "@/contexts/auth-context";
-import { ApiError } from "@/lib/api/client";
-import * as authApi from "@/lib/api/auth";
-import { messages } from "@/lib/i18n/messages";
+import { authClient } from "@/lib/auth-client";
+import { messages, translateApiError } from "@/lib/i18n";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
@@ -38,23 +37,22 @@ export default function ChangePasswordPage() {
     }
 
     setSubmitting(true);
-    try {
-      await authApi.changePassword({
-        currentPassword,
-        newPassword,
-        confirmPassword,
-      });
-      setSuccess(messages.profile.changePasswordSaved);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : messages.auth.somethingWrong,
-      );
-    } finally {
-      setSubmitting(false);
+    const { error: changeError } = await authClient.changePassword({
+      currentPassword,
+      newPassword,
+      revokeOtherSessions: true,
+    });
+    setSubmitting(false);
+
+    if (changeError) {
+      setError(translateApiError(changeError.message ?? ""));
+      return;
     }
+
+    setSuccess(messages.profile.changePasswordSaved);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   }
 
   if (isLoading || !user) {

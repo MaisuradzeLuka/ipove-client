@@ -47,7 +47,7 @@ export function ListingGrid({ listings, title, subtitle }: ListingGridProps) {
 
       <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {listings.map((listing) => (
-          <li key={listing.listingId}>
+          <li key={listing.listingId} className="h-full">
             <ListingCard listing={listing} />
           </li>
         ))}

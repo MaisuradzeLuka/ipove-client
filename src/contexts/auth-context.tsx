@@ -11,6 +11,7 @@ import {
 } from "react";
 import * as authApi from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
+import { authClient } from "@/lib/auth-client";
 import { messages, translateApiError } from "@/lib/i18n";
 import type { UpdateUserPayload, User } from "@/lib/auth/types";
 
@@ -24,7 +25,9 @@ type AuthContextValue = {
     confirmPassword: string;
   }) => Promise<string | null>;
   signIn: (email: string, password: string) => Promise<string | null>;
+  signInWithGoogle: (callbackURL?: string) => Promise<string | null>;
   signOut: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<string | null>;
   updateProfile: (payload: UpdateUserPayload) => Promise<string | null>;
   uploadAvatar: (file: File) => Promise<string | null>;
 };
@@ -35,6 +38,13 @@ function errorMessage(err: unknown): string {
   if (err instanceof ApiError) return translateApiError(err.message);
   if (err instanceof Error) return translateApiError(err.message);
   return messages.auth.somethingWrong;
+}
+
+function authClientErrorMessage(
+  error: { message?: string } | null | undefined,
+): string | null {
+  if (!error?.message) return messages.auth.somethingWrong;
+  return translateApiError(error.message);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -60,27 +70,94 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsLoading(false));
   }, [refreshUser]);
 
+  // Re-check session when the tab regains focus — handles OAuth redirect return.
+  useEffect(() => {
+    function handleFocus() {
+      refreshUser().catch(() => setUser(null));
+    }
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [refreshUser]);
+
   const signUp = useCallback(
     async (input: {
       email: string;
       password: string;
       confirmPassword: string;
     }) => {
-      try {
-        await authApi.signUp(input);
-        await refreshUser();
-        return null;
-      } catch (err) {
-        return errorMessage(err);
+      if (input.password !== input.confirmPassword) {
+        return messages.auth.passwordsMismatch;
       }
+
+      const email = input.email.trim();
+      const { error } = await authClient.signUp.email({
+        email,
+        password: input.password,
+        name: email.split("@")[0] || "User",
+      });
+
+      if (error) return authClientErrorMessage(error);
+
+      await refreshUser();
+      return null;
     },
     [refreshUser],
   );
 
   const signIn = useCallback(
     async (email: string, password: string) => {
+      const { error } = await authClient.signIn.email({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) return authClientErrorMessage(error);
+
+      await refreshUser();
+      return null;
+    },
+    [refreshUser],
+  );
+
+  const signInWithGoogle = useCallback(async (callbackURL = "/") => {
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : "";
+    const absoluteCallback = callbackURL.startsWith("http")
+      ? callbackURL
+      : `${origin}${callbackURL}`;
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: absoluteCallback,
+    });
+
+    if (error) return authClientErrorMessage(error);
+    return null;
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      await authClient.signOut();
+    } finally {
+      setUser(null);
+    }
+  }, []);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const frontendUrl =
+      typeof window !== "undefined" ? window.location.origin : "";
+    const { error } = await authClient.requestPasswordReset({
+      email: email.trim(),
+      redirectTo: `${frontendUrl}/reset-password`,
+    });
+
+    if (error) return authClientErrorMessage(error);
+    return null;
+  }, []);
+
+  const updateProfile = useCallback(
+    async (payload: UpdateUserPayload) => {
       try {
-        await authApi.signIn({ email, password });
+        await authApi.updateUser(payload);
         await refreshUser();
         return null;
       } catch (err) {
@@ -89,24 +166,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [refreshUser],
   );
-
-  const signOut = useCallback(async () => {
-    try {
-      await authApi.signOut();
-    } finally {
-      setUser(null);
-    }
-  }, []);
-
-  const updateProfile = useCallback(async (payload: UpdateUserPayload) => {
-    try {
-      await authApi.updateUser(payload);
-      await refreshUser();
-      return null;
-    } catch (err) {
-      return errorMessage(err);
-    }
-  }, [refreshUser]);
 
   const uploadAvatar = useCallback(async (file: File) => {
     try {
@@ -123,7 +182,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshUser,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
+      requestPasswordReset,
       updateProfile,
       uploadAvatar,
     }),
@@ -133,7 +194,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshUser,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
+      requestPasswordReset,
       updateProfile,
       uploadAvatar,
     ],

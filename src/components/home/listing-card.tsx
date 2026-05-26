@@ -21,10 +21,10 @@ export function ListingCard({ listing }: ListingCardProps) {
   const experience = formatExperienceYears(listing.experienceYears);
 
   return (
-    <article className="group h-full overflow-hidden rounded-2xl border border-border bg-background-surface shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-background-surface shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg">
       <Link
         href={`/listings/${listing.listingId}`}
-        className="block outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
+        className="flex min-h-0 flex-1 flex-col outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
         <div className="relative aspect-[5/4] w-full overflow-hidden bg-background-muted">
           {coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element

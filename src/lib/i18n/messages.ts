@@ -221,6 +221,28 @@ export const messages = {
     passwordsMismatch: "პაროლები არ ემთხვევა",
     somethingWrong: "რაღაც შეცდომა მოხდა",
     requestFailed: "მოთხოვნა ვერ შესრულდა",
+    orContinueWith: "ან გააგრძელეთ",
+    googleSignIn: "Google-ით შესვლა",
+    googleSubmitting: "მიმდინარეობს…",
+    forgotPasswordLink: "დაგავიწყდათ პაროლი?",
+    resetEmailSent:
+      "თუ ამ ელ. ფოსტაზე ანგარიში არსებობს, გამოგიგზავთ აღდგენის ბმულს.",
+  },
+  forgotPassword: {
+    title: "პაროლის აღდგენა",
+    subtitle: "შეიყვანეთ ელ. ფოსტა და გამოგიგზავთ აღდგენის ბმულს",
+    submit: "ბმულის გაგზავნა",
+    submitting: "იგზავნება…",
+    backToSignIn: "შესვლაზე დაბრუნება",
+  },
+  resetPassword: {
+    title: "ახალი პაროლი",
+    subtitle: "შეიყვანეთ ახალი პაროლი ორჯერ დასადასტურებლად",
+    submit: "პაროლის შენახვა",
+    submitting: "ინახება…",
+    success: "პაროლი წარმატებით შეიცვალა. ახლა შეგიძლიათ შესვლა.",
+    invalidToken: "ბმული ვადაგასულია ან არასწორია. მოითხოვეთ ახალი.",
+    backToSignIn: "შესვლაზე დაბრუნება",
   },
   signIn: {
     title: "კიდევ ერთხელ გიხარებთ",

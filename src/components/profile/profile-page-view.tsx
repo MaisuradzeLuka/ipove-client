@@ -342,7 +342,7 @@ export function ProfilePageView() {
             ) : (
               <ul className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {previewListings.map((listing) => (
-                  <li key={listing.listingId}>
+                  <li key={listing.listingId} className="h-full">
                     <ListingCard listing={listing} />
                   </li>
                 ))}

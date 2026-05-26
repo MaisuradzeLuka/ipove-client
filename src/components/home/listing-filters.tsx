@@ -24,6 +24,7 @@ function FilterSelect({
   value,
   options,
   onChange,
+  onClear,
   disabled = false,
   active = false,
 }: {
@@ -31,41 +32,69 @@ function FilterSelect({
   value: string;
   options: Option[];
   onChange: (value: string) => void;
+  onClear?: () => void;
   disabled?: boolean;
   active?: boolean;
 }) {
+  const selectedLabel =
+    options.find((opt) => opt.value === value)?.label ?? label;
+  const showActive = active && !disabled;
+
   return (
-    <label
-      className={`group flex flex-col gap-1.5 rounded-xl border p-3 transition-all duration-200 ${
+    <div
+      className={`group relative min-h-13 rounded-lg border bg-background-surface transition-colors ${
         disabled
           ? "cursor-not-allowed border-border/60 bg-background-subtle/50 opacity-70"
-          : active
-            ? "border-accent/50 bg-accent-soft/40 shadow-sm ring-1 ring-accent/20"
-            : "border-border bg-background-surface shadow-xs hover:border-accent/30 hover:shadow-sm"
+          : "border-border hover:border-foreground-subtle/50"
       }`}>
-      <span className="text-xs font-medium text-foreground-muted">{label}</span>
-      <div className="relative">
-        <select
-          value={value}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-8 w-full cursor-pointer appearance-none truncate rounded-md border-0 bg-transparent pr-7 text-sm font-medium text-foreground outline-none disabled:cursor-not-allowed"
-          aria-label={label}>
-          {options.map((opt) => (
-            <option key={opt.value || "all"} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        {!disabled ? (
-          <span
-            className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-foreground-subtle transition-colors group-hover:text-foreground-accent"
-            aria-hidden>
-            ▾
+      <div className="pointer-events-none flex h-full flex-col justify-center px-3 py-2.5 pr-9">
+        {showActive ? (
+          <>
+            <span className="text-xs text-foreground-muted">{label}</span>
+            <span className="truncate text-sm font-semibold text-foreground">
+              {selectedLabel}
+            </span>
+          </>
+        ) : (
+          <span className="truncate text-sm text-foreground-muted">
+            {disabled ? options[0]?.label ?? label : label}
           </span>
-        ) : null}
+        )}
       </div>
-    </label>
+
+      <select
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed"
+        aria-label={label}>
+        {options.map((opt) => (
+          <option key={opt.value || "all"} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+
+      {showActive && onClear ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClear();
+          }}
+          className="absolute right-2.5 top-1/2 z-10 -translate-y-1/2 rounded p-0.5 text-foreground-subtle transition-colors hover:text-foreground"
+          aria-label={`${label} — ${messages.filters.clear}`}>
+          <HiOutlineXMark className="size-4" aria-hidden />
+        </button>
+      ) : !disabled ? (
+        <span
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-foreground-subtle"
+          aria-hidden>
+          ▾
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -150,8 +179,8 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
     <section
       aria-label={messages.home.activeFilters}
       className="border-b border-border bg-background-muted/40">
-      <div className="mx-auto max-w-6xl space-y-3 px-6 py-5">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto max-w-6xl px-6 py-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           <FilterSelect
             label={messages.filters.category}
             value={filters.categorySlug ?? ""}
@@ -160,6 +189,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
             onChange={(categorySlug) =>
               update({ categorySlug: categorySlug || undefined })
             }
+            onClear={() => update({ categorySlug: undefined })}
           />
           <FilterSelect
             label={messages.filters.city}
@@ -167,6 +197,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
             options={cityOptions}
             active={Boolean(filters.city)}
             onChange={(city) => update({ city: city || undefined })}
+            onClear={() => update({ city: undefined })}
           />
           <FilterSelect
             label={messages.filters.compensation}
@@ -181,10 +212,8 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
                     : (compensationType as ListingFiltersState["compensationType"]),
               })
             }
+            onClear={() => update({ compensationType: undefined })}
           />
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <FilterSelect
             label={messages.filters.experience}
             value={filters.minExperience ?? ""}
@@ -193,6 +222,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
             onChange={(minExperience) =>
               update({ minExperience: minExperience || undefined })
             }
+            onClear={() => update({ minExperience: undefined })}
           />
           <FilterSelect
             label={messages.filters.workMode}
@@ -207,6 +237,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
                     : (workMode as ListingFiltersState["workMode"]),
               })
             }
+            onClear={() => update({ workMode: undefined })}
           />
           <FilterSelect
             label={messages.filters.sortBy}
@@ -221,21 +252,15 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
                     : (sortBy as ListingFiltersState["sortBy"]),
               })
             }
-          />
-          <FilterSelect
-            label={messages.filters.rating}
-            value=""
-            options={[{ value: "", label: messages.filters.ratingSoon }]}
-            onChange={() => undefined}
-            disabled
+            onClear={() => update({ sortBy: undefined })}
           />
         </div>
 
         {hasActiveFilters ? (
-          <div className="flex justify-end pt-1">
+          <div className="mt-3 flex justify-end">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background-surface px-3.5 py-2 text-sm font-medium text-foreground-muted shadow-xs transition-all hover:border-error/40 hover:bg-error-soft/30 hover:text-error-foreground">
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground-muted transition-colors hover:text-error-foreground">
               <HiOutlineXMark className="size-4" aria-hidden />
               {messages.filters.clear}
             </Link>

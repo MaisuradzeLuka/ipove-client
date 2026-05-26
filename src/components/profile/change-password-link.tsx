@@ -6,10 +6,12 @@ export function ChangePasswordLink() {
   return (
     <Link
       href="/profile/change-password"
-      className="group -mx-5 flex items-center gap-4 border-t border-border px-5 py-5 transition-colors hover:bg-background-muted/50 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      className="group -mx-5 flex items-center gap-4 border-t border-border px-14! py-5 transition-colors hover:bg-background-muted/50 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+    >
       <span
         className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg bg-error text-white"
-        aria-hidden>
+        aria-hidden
+      >
         <HiOutlineLockClosed className="size-6" />
       </span>
 
