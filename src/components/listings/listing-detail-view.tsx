@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { HiOutlineArrowLeft, HiOutlineMapPin } from "react-icons/hi2";
-import { ListingOwnerAvatar } from "@/components/home/listing-owner-avatar";
+import { ListingContactSection } from "@/components/listings/listing-contact-section";
+import { ListingOwnerLink } from "@/components/users/listing-owner-link";
 import {
+  formatCompensation,
   formatExperienceYears,
-  formatHourlyRate,
-  listingOwnerDisplayName,
+  formatWorkMode,
 } from "@/lib/listings/display";
+import { listingCoverForListing } from "@/lib/listings/cover";
 import { messages } from "@/lib/i18n/messages";
 import type { Listing } from "@/lib/listings/types";
 
@@ -37,8 +39,13 @@ function ListingHeaderTop({
 }
 
 export function ListingDetailView({ listing, isOwner }: ListingDetailViewProps) {
+  const coverUrl = listingCoverForListing(listing);
   const experience = formatExperienceYears(listing.experienceYears);
-  const hourlyRate = formatHourlyRate(listing.hourlyRate);
+  const compensation = formatCompensation(
+    listing.hourlyRate,
+    listing.compensationType,
+  );
+  const workMode = formatWorkMode(listing.workMode);
 
   return (
     <article>
@@ -48,6 +55,37 @@ export function ListingDetailView({ listing, isOwner }: ListingDetailViewProps) 
         <HiOutlineArrowLeft className="size-4" aria-hidden />
         {messages.listingDetail.backHome}
       </Link>
+
+      {coverUrl || listing.examples.length > 0 ? (
+        <section className="mt-6 overflow-hidden rounded-2xl border border-border bg-background-surface">
+          {coverUrl ? (
+            <div className="relative aspect-[21/9] overflow-hidden sm:aspect-[2.5/1]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={coverUrl}
+                alt=""
+                className="size-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            </div>
+          ) : null}
+
+          {listing.examples.length > 1 ? (
+            <ul className="grid grid-cols-3 gap-1 p-1 sm:grid-cols-6">
+              {listing.examples.map((url) => (
+                <li key={url} className="overflow-hidden rounded-lg">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt=""
+                    className="aspect-square w-full object-cover"
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
 
       <header className="mt-6 rounded-2xl border border-border bg-background-surface p-6 sm:p-8">
         <ListingHeaderTop listing={listing} isOwner={isOwner} />
@@ -62,21 +100,19 @@ export function ListingDetailView({ listing, isOwner }: ListingDetailViewProps) 
             {listing.city}
           </li>
           {experience ? <li>{experience}</li> : null}
-          {hourlyRate ? (
-            <li className="font-medium text-foreground-accent">{hourlyRate}</li>
+          {compensation ? (
+            <li className="font-medium text-foreground-accent">{compensation}</li>
           ) : null}
+          <li>{workMode}</li>
         </ul>
 
-        <div className="mt-6 flex items-center gap-3 border-t border-border pt-6">
-          <ListingOwnerAvatar owner={listing.owner} size="md" />
-          <div>
-            <p className="font-medium text-foreground">
-              {listingOwnerDisplayName(listing.owner)}
-            </p>
-            <p className="text-sm text-foreground-muted">
-              {messages.listingDetail.professional}
-            </p>
-          </div>
+        <div className="mt-6 border-t border-border pt-6">
+          <ListingOwnerLink
+            owner={listing.owner}
+            subtitle={messages.listingDetail.professional}
+            size="md"
+            className="-mx-2 px-2 py-2"
+          />
         </div>
       </header>
 
@@ -106,44 +142,11 @@ export function ListingDetailView({ listing, isOwner }: ListingDetailViewProps) 
         </section>
       ) : null}
 
-      {listing.examples.length > 0 ? (
-        <section className="mt-8">
-          <h2 className="text-lg font-semibold text-foreground">
-            {messages.listingDetail.portfolio}
-          </h2>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {listing.examples.map((url) => (
-              <li key={url}>
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block overflow-hidden rounded-xl border border-border bg-background-surface transition-shadow hover:shadow-md">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt=""
-                    className="aspect-video w-full object-cover"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <section className="mt-10 rounded-xl border border-border bg-background-muted px-6 py-8 text-center">
-        <p className="text-sm text-foreground-muted">
-          {messages.listingDetail.contactHint}
-        </p>
-        {isOwner ? (
-          <Link
-            href={`/dashboard/listings/${listing.listingId}/edit`}
-            className="mt-4 inline-flex rounded-lg bg-accent px-4 py-2 text-sm font-medium text-foreground-on-accent transition-colors hover:bg-accent-hover">
-            {messages.listingDetail.editOwn}
-          </Link>
-        ) : null}
-      </section>
+      <ListingContactSection
+        owner={listing.owner}
+        isOwner={isOwner}
+        listingId={listing.listingId}
+      />
     </article>
   );
 }

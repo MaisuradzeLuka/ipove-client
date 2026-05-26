@@ -40,7 +40,7 @@ export default function EditListingPage() {
 
   if (isLoading || !user || loadingListing) {
     return (
-      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-12">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
         <p className="text-sm text-foreground-muted">{messages.dashboard.loading}</p>
       </main>
     );
@@ -48,7 +48,7 @@ export default function EditListingPage() {
 
   if (error || !listing) {
     return (
-      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-12">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
         <p className="text-sm text-error">{error ?? messages.listingForm.loadFailed}</p>
         <Link
           href="/dashboard"
@@ -60,7 +60,7 @@ export default function EditListingPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-lg flex-1 px-6 py-12">
+    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">
         {messages.listingForm.editTitle}
       </h1>

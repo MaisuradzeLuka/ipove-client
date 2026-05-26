@@ -16,6 +16,14 @@ function toQueryString(params: ListingsQuery): string {
   if (params.categorySlug) search.set("categorySlug", params.categorySlug);
   if (params.city) search.set("city", params.city);
   if (params.q) search.set("q", params.q);
+  if (params.compensationType) {
+    search.set("compensationType", params.compensationType);
+  }
+  if (params.minExperience != null) {
+    search.set("minExperience", String(params.minExperience));
+  }
+  if (params.workMode) search.set("workMode", params.workMode);
+  if (params.sortBy) search.set("sortBy", params.sortBy);
 
   const query = search.toString();
   return query ? `?${query}` : "";

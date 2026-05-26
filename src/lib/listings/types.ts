@@ -1,4 +1,12 @@
 export type ListingStatus = "draft" | "active" | "archived";
+export type CompensationType = "one_time" | "monthly" | "hourly" | "negotiable";
+export type WorkMode = "onsite" | "remote" | "hybrid";
+export type ListingSortBy =
+  | "newest"
+  | "oldest"
+  | "price_asc"
+  | "price_desc"
+  | "popular";
 
 export type ListingCategory = {
   categoryId: string;
@@ -12,6 +20,8 @@ export type ListingOwner = {
   name: string | null;
   lastname: string | null;
   avatar: string | null;
+  email?: string;
+  phoneNumber?: number | null;
 };
 
 export type Listing = {
@@ -23,6 +33,9 @@ export type Listing = {
   city: string;
   experienceYears: number | null;
   hourlyRate: number | null;
+  compensationType: CompensationType;
+  workMode: WorkMode;
+  viewCount: number;
   skills: string[];
   examples: string[];
   status: ListingStatus;
@@ -50,6 +63,8 @@ export type CreateListingPayload = {
   city: string;
   experienceYears?: number;
   hourlyRate?: number;
+  compensationType?: CompensationType;
+  workMode?: WorkMode;
   skills?: string[];
   examples?: string[];
   status?: ListingStatus;
@@ -62,6 +77,11 @@ export type ListingsQuery = {
   limit?: number;
   categoryId?: string;
   categorySlug?: string;
+  groupSlug?: string;
   city?: string;
   q?: string;
+  compensationType?: CompensationType;
+  minExperience?: number | string;
+  workMode?: WorkMode;
+  sortBy?: ListingSortBy;
 };

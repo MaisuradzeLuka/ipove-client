@@ -3,13 +3,14 @@ import type { ListingOwner } from "@/lib/listings/types";
 
 type ListingOwnerAvatarProps = {
   owner: ListingOwner;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   className?: string;
 };
 
 const sizeClasses = {
   sm: "size-8 text-xs",
   md: "size-10 text-sm",
+  lg: "size-20 text-xl",
 };
 
 function initials(owner: ListingOwner) {

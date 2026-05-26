@@ -13,7 +13,7 @@ export function AddListingLink() {
   return (
     <Link
       href="/dashboard/listings/new"
-      className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-foreground-on-accent transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset"
+      className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-accent px-3.5 text-sm font-medium text-foreground-on-accent transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset"
     >
       {messages.nav.addListing}
     </Link>
