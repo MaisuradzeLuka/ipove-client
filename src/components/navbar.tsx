@@ -8,7 +8,7 @@ import { messages } from "@/lib/i18n/messages";
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background-surface/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-[var(--z-sticky)] border-b border-border bg-background-surface/90 backdrop-blur-sm">
       <nav
         className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-6"
         aria-label={messages.nav.main}>

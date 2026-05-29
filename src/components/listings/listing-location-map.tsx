@@ -93,7 +93,8 @@ export function ListingLocationMap({
   }
 
   return (
-    <div className={`overflow-hidden border border-border ${className}`}>
+    <div
+      className={`listing-location-map relative isolate overflow-hidden border border-border ${className}`}>
       <MapContainer
         key={cityKey || "default"}
         center={viewCenter}
