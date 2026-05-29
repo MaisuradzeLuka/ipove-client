@@ -31,6 +31,8 @@ export type Listing = {
   title: string;
   description: string;
   city: string;
+  latitude: number | null;
+  longitude: number | null;
   experienceYears: number | null;
   hourlyRate: number | null;
   compensationType: CompensationType;
@@ -61,6 +63,8 @@ export type CreateListingPayload = {
   title: string;
   description: string;
   city: string;
+  latitude?: number | null;
+  longitude?: number | null;
   experienceYears?: number;
   hourlyRate?: number;
   compensationType?: CompensationType;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { HiOutlineArrowLeft, HiOutlineMapPin } from "react-icons/hi2";
 import { ListingContactSection } from "@/components/listings/listing-contact-section";
+import { ListingLocationSection } from "@/components/listings/listing-location-section";
 import { ListingOwnerLink } from "@/components/users/listing-owner-link";
 import {
   formatCompensation,
@@ -141,6 +142,8 @@ export function ListingDetailView({ listing, isOwner }: ListingDetailViewProps) 
           </ul>
         </section>
       ) : null}
+
+      <ListingLocationSection listing={listing} />
 
       <ListingContactSection
         owner={listing.owner}

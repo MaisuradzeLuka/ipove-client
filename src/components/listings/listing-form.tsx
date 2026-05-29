@@ -13,7 +13,12 @@ import { getCategories } from "@/lib/api/categories";
 import { createListing, updateListing } from "@/lib/api/listings";
 import type { CategoryGroup } from "@/lib/categories/types";
 import { getCategoryHints } from "@/lib/listings/category-hints";
+import { ListingLocationPicker } from "@/components/listings/listing-location-picker";
 import { GEORGIAN_CITIES } from "@/lib/listings/filters";
+import {
+  hasMapLocation,
+  type MapCoordinates,
+} from "@/lib/listings/coordinates";
 import { messages } from "@/lib/i18n/messages";
 import type {
   CompensationType,
@@ -149,6 +154,11 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
   const [title, setTitle] = useState(listing?.title ?? "");
   const [description, setDescription] = useState(listing?.description ?? "");
   const [city, setCity] = useState(listing?.city ?? defaultCity ?? "");
+  const [location, setLocation] = useState<MapCoordinates | null>(
+    listing && hasMapLocation(listing)
+      ? { latitude: listing.latitude, longitude: listing.longitude }
+      : null,
+  );
   const [experienceYears, setExperienceYears] = useState(
     listing?.experienceYears != null ? String(listing.experienceYears) : "",
   );
@@ -161,6 +171,12 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
   const [workMode, setWorkMode] = useState<WorkMode>(
     listing?.workMode ?? "onsite",
   );
+
+  useEffect(() => {
+    if (workMode === "remote") {
+      setLocation(null);
+    }
+  }, [workMode]);
   const [skills, setSkills] = useState(listing?.skills.join(", ") ?? "");
   const [status, setStatus] = useState<ListingStatus>(
     listing?.status ?? "active",
@@ -227,6 +243,10 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
       title: title.trim(),
       description: description.trim(),
       city: city.trim(),
+      latitude:
+        workMode === "remote" ? null : (location?.latitude ?? null),
+      longitude:
+        workMode === "remote" ? null : (location?.longitude ?? null),
       experienceYears: experienceYears
         ? Number.parseInt(experienceYears, 10)
         : undefined,
@@ -406,6 +426,14 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
               onChange={(e) => setExperienceYears(e.target.value)}
             />
           </div>
+
+          {workMode !== "remote" ? (
+            <ListingLocationPicker
+              city={city}
+              value={location}
+              onChange={setLocation}
+            />
+          ) : null}
         </div>
       ) : null}
 

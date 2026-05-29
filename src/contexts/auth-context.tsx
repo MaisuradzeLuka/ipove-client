@@ -127,13 +127,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const absoluteCallback = callbackURL.startsWith("http")
       ? callbackURL
       : `${origin}${callbackURL}`;
-    const { error } = await authClient.signIn.social({
-      provider: "google",
-      callbackURL: absoluteCallback,
-    });
 
-    if (error) return authClientErrorMessage(error);
-    return null;
+    try {
+      const { error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: absoluteCallback,
+      });
+
+      if (error) return authClientErrorMessage(error);
+      return null;
+    } catch {
+      return messages.auth.requestFailed;
+    }
   }, []);
 
   const signOut = useCallback(async () => {

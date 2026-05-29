@@ -107,6 +107,8 @@ export const messages = {
       if (status === "active") return "აქტიური";
       return "არქივი";
     },
+    location: "მდებარეობა",
+    openInMaps: "გახსნა Google Maps-ში",
   },
   dashboard: {
     title: "ჩემი განცხადებები",
@@ -179,6 +181,14 @@ export const messages = {
     descriptionRequired: "აღწერა მინიმუმ 10 სიმბოლო",
     cityRequired: "აირჩიე ქალაქი",
     selectCity: "აირჩიე ქალაქი",
+    mapLocation: "მდებარეობა რუკაზე (არასავალდებულო)",
+    mapLocationHint: (city: string) =>
+      `რუკა ცენტრირებულია „${city}“-ზე. დააწკაპუნე ან გადაიტანე ნიშანი ზუსტი ადგილის მისაცემად.`,
+    mapLocationSelectCity: "ჯერ აირჩიე ქალაქი, რათა რუკა გამოჩნდეს.",
+    mapLocationClear: "მოხსნა",
+    mapLocationEmpty: "მდებარეობა არ არის მითითებული — მხოლოდ ქალაქი ჩანს.",
+    mapLocationSet: (lat: string, lng: string) =>
+      `კოორდინატები: ${lat}, ${lng}`,
     priceLabel: (type: "one_time" | "monthly" | "hourly" | "negotiable") => {
       if (type === "one_time") return "ფასი (₾, ერთჯერადი)";
       if (type === "monthly") return "ფასი (₾, თვეში)";
