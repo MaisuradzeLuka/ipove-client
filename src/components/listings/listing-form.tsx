@@ -19,7 +19,7 @@ import {
   hasMapLocation,
   type MapCoordinates,
 } from "@/lib/listings/coordinates";
-import { messages } from "@/lib/i18n/messages";
+import { useCategoryName, useMessages } from "@/contexts/locale-context";
 import type {
   CompensationType,
   Listing,
@@ -49,6 +49,7 @@ function splitList(value: string): string[] {
 }
 
 function StepProgress({ step }: { step: number }) {
+  const messages = useMessages();
   const labels = [
     messages.listingForm.step1Label,
     messages.listingForm.step2Label,
@@ -145,6 +146,8 @@ function RadioButtonGroup<T extends string>({
 }
 
 export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
+  const messages = useMessages();
+  const categoryName = useCategoryName();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [groups, setGroups] = useState<CategoryGroup[]>([]);
@@ -189,11 +192,11 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
       .then(({ groups: data }) => setGroups(data))
       .catch(() => setError(messages.listingForm.loadCategoriesFailed))
       .finally(() => setLoadingCategories(false));
-  }, []);
+  }, [messages]);
 
   const hints = useMemo(
-    () => getCategoryHints(groups, categoryId),
-    [groups, categoryId],
+    () => getCategoryHints(groups, categoryId, messages),
+    [groups, categoryId, messages],
   );
 
   function validateStep(current: number): string | null {
@@ -326,10 +329,10 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
                   : messages.listingForm.selectCategory}
               </option>
               {groups.map((group) => (
-                <optgroup key={group.categoryId} label={group.nameKa}>
+                <optgroup key={group.categoryId} label={categoryName(group)}>
                   {group.children.map((child) => (
                     <option key={child.categoryId} value={child.categoryId}>
-                      {child.icon} {child.nameKa}
+                      {child.icon} {categoryName(child)}
                     </option>
                   ))}
                 </optgroup>

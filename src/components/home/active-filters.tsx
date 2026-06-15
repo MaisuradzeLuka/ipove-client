@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 type ActiveFiltersProps = {
   query?: string;
@@ -14,6 +16,7 @@ export function ActiveFilters({
   categoryName,
   categorySlug,
 }: ActiveFiltersProps) {
+  const messages = useMessages();
   const hasFilters = Boolean(query || city || categorySlug);
   if (!hasFilters) return null;
 

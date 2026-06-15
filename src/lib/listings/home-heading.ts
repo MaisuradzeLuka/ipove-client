@@ -1,11 +1,15 @@
+import type { Messages } from "@/lib/i18n/get-messages";
+import type { Locale } from "@/lib/i18n/locales";
+import { getCategoryName } from "@/lib/categories/display";
 import type { CategoryGroup } from "@/lib/categories/types";
-import { messages } from "@/lib/i18n/messages";
 import type { ListingFiltersState } from "@/lib/listings/filters";
 
 export function getListingsHeading(
   filters: ListingFiltersState,
   groups: CategoryGroup[],
   total: number,
+  messages: Messages,
+  locale: Locale,
 ): { title: string; subtitle?: string } {
   if (filters.q) {
     return {
@@ -19,7 +23,7 @@ export function getListingsHeading(
       const cat = group.children.find((c) => c.slug === filters.categorySlug);
       if (cat) {
         return {
-          title: `${cat.icon} ${cat.nameKa}`,
+          title: `${cat.icon} ${getCategoryName(cat, locale)}`,
           subtitle: messages.home.listingsCount(total),
         };
       }
@@ -30,7 +34,7 @@ export function getListingsHeading(
     const group = groups.find((g) => g.slug === filters.groupSlug);
     if (group) {
       return {
-        title: `${group.icon} ${group.nameKa}`,
+        title: `${group.icon} ${getCategoryName(group, locale)}`,
         subtitle: messages.home.listingsCount(total),
       };
     }

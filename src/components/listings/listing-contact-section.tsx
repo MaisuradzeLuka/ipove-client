@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { HiOutlineEnvelope, HiOutlinePhone } from "react-icons/hi2";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import {
   formatPhoneDisplay,
   ownerHasContact,
@@ -22,6 +22,7 @@ export function ListingContactSection({
   isOwner,
   listingId,
 }: ListingContactSectionProps) {
+  const messages = useMessages();
   const [revealed, setRevealed] = useState(false);
   const hasContact = ownerHasContact(owner);
 

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { useAuth } from "@/contexts/auth-context";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 export default function CheckEmailPage() {
   return (
@@ -16,6 +16,7 @@ export default function CheckEmailPage() {
 }
 
 function CheckEmailContent() {
+  const messages = useMessages();
   const searchParams = useSearchParams();
   const email = searchParams.get("email")?.trim() ?? "";
   const { resendVerificationEmail } = useAuth();

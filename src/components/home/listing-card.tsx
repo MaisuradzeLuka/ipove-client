@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { HiOutlineMapPin } from "react-icons/hi2";
+import { useCategoryName } from "@/contexts/locale-context";
 import { ListingOwnerLink } from "@/components/users/listing-owner-link";
 import {
   formatCompensation,
@@ -13,6 +16,7 @@ type ListingCardProps = {
 };
 
 export function ListingCard({ listing }: ListingCardProps) {
+  const categoryName = useCategoryName();
   const coverUrl = listingCoverForListing(listing);
   const compensation = formatCompensation(
     listing.hourlyRate,
@@ -57,7 +61,7 @@ export function ListingCard({ listing }: ListingCardProps) {
         <div className="flex flex-col gap-2 p-4">
           <p className="text-xs font-medium text-foreground-accent">
             <span aria-hidden>{listing.category.icon}</span>{" "}
-            {listing.category.nameKa}
+            {categoryName(listing.category)}
           </p>
 
           <h3 className="line-clamp-2 text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-foreground-accent">

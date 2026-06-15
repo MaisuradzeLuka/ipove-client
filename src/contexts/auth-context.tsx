@@ -9,10 +9,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useMessages } from "@/contexts/locale-context";
 import * as authApi from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
 import { authClient } from "@/lib/auth-client";
-import { messages, translateApiError } from "@/lib/i18n";
+import { translateApiError } from "@/lib/i18n/translate-api-error";
+import type { Messages } from "@/lib/i18n/get-messages";
 import type { UpdateUserPayload, User } from "@/lib/auth/types";
 import { verifyEmailCallbackURL } from "@/lib/auth/verify-email";
 
@@ -36,7 +38,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function errorMessage(err: unknown): string {
+function errorMessage(err: unknown, messages: Messages): string {
   if (err instanceof ApiError) return translateApiError(err.message);
   if (err instanceof Error) return translateApiError(err.message);
   return messages.auth.somethingWrong;
@@ -44,12 +46,14 @@ function errorMessage(err: unknown): string {
 
 function authClientErrorMessage(
   error: { message?: string } | null | undefined,
+  messages: Messages,
 ): string | null {
   if (!error?.message) return messages.auth.somethingWrong;
   return translateApiError(error.message);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const messages = useMessages();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -99,11 +103,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         callbackURL: verifyEmailCallbackURL(),
       });
 
-      if (error) return authClientErrorMessage(error);
+      if (error) return authClientErrorMessage(error, messages);
 
       return null;
     },
-    [refreshUser],
+    [messages],
   );
 
   const signIn = useCallback(
@@ -113,33 +117,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
 
-      if (error) return authClientErrorMessage(error);
+      if (error) return authClientErrorMessage(error, messages);
 
       await refreshUser();
       return null;
     },
-    [refreshUser],
+    [messages, refreshUser],
   );
 
-  const signInWithGoogle = useCallback(async (callbackURL = "/") => {
-    const origin =
-      typeof window !== "undefined" ? window.location.origin : "";
-    const absoluteCallback = callbackURL.startsWith("http")
-      ? callbackURL
-      : `${origin}${callbackURL}`;
+  const signInWithGoogle = useCallback(
+    async (callbackURL = "/") => {
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "";
+      const absoluteCallback = callbackURL.startsWith("http")
+        ? callbackURL
+        : `${origin}${callbackURL}`;
 
-    try {
-      const { error } = await authClient.signIn.social({
-        provider: "google",
-        callbackURL: absoluteCallback,
-      });
+      try {
+        const { error } = await authClient.signIn.social({
+          provider: "google",
+          callbackURL: absoluteCallback,
+        });
 
-      if (error) return authClientErrorMessage(error);
-      return null;
-    } catch {
-      return messages.auth.requestFailed;
-    }
-  }, []);
+        if (error) return authClientErrorMessage(error, messages);
+        return null;
+      } catch {
+        return messages.auth.requestFailed;
+      }
+    },
+    [messages],
+  );
 
   const signOut = useCallback(async () => {
     try {
@@ -149,27 +156,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const resendVerificationEmail = useCallback(async (email: string) => {
-    const { error } = await authClient.sendVerificationEmail({
-      email: email.trim(),
-      callbackURL: verifyEmailCallbackURL(),
-    });
+  const resendVerificationEmail = useCallback(
+    async (email: string) => {
+      const { error } = await authClient.sendVerificationEmail({
+        email: email.trim(),
+        callbackURL: verifyEmailCallbackURL(),
+      });
 
-    if (error) return authClientErrorMessage(error);
-    return null;
-  }, []);
+      if (error) return authClientErrorMessage(error, messages);
+      return null;
+    },
+    [messages],
+  );
 
-  const requestPasswordReset = useCallback(async (email: string) => {
-    const frontendUrl =
-      typeof window !== "undefined" ? window.location.origin : "";
-    const { error } = await authClient.requestPasswordReset({
-      email: email.trim(),
-      redirectTo: `${frontendUrl}/reset-password`,
-    });
+  const requestPasswordReset = useCallback(
+    async (email: string) => {
+      const frontendUrl =
+        typeof window !== "undefined" ? window.location.origin : "";
+      const { error } = await authClient.requestPasswordReset({
+        email: email.trim(),
+        redirectTo: `${frontendUrl}/reset-password`,
+      });
 
-    if (error) return authClientErrorMessage(error);
-    return null;
-  }, []);
+      if (error) return authClientErrorMessage(error, messages);
+      return null;
+    },
+    [messages],
+  );
 
   const updateProfile = useCallback(
     async (payload: UpdateUserPayload) => {
@@ -178,19 +191,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await refreshUser();
         return null;
       } catch (err) {
-        return errorMessage(err);
+        return errorMessage(err, messages);
       }
     },
-    [refreshUser],
+    [messages, refreshUser],
   );
 
-  const uploadAvatar = useCallback(async (file: File) => {
-    try {
-      return await authApi.uploadImage(file);
-    } catch (err) {
-      return errorMessage(err);
-    }
-  }, []);
+  const uploadAvatar = useCallback(
+    async (file: File) => {
+      try {
+        return await authApi.uploadImage(file);
+      } catch (err) {
+        return errorMessage(err, messages);
+      }
+    },
+    [messages],
+  );
 
   const value = useMemo(
     () => ({

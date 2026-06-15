@@ -1,7 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { HiOutlineArrowRight } from "react-icons/hi2";
 import { ListingCard } from "@/components/home/listing-card";
-import { messages } from "@/lib/i18n/messages";
+import { useCategoryName, useMessages } from "@/contexts/locale-context";
 import type { CategoryListingSection } from "@/lib/listings/home-feed";
 
 type CategorySectionsFeedProps = {
@@ -9,6 +11,9 @@ type CategorySectionsFeedProps = {
 };
 
 export function CategorySectionsFeed({ sections }: CategorySectionsFeedProps) {
+  const messages = useMessages();
+  const categoryName = useCategoryName();
+
   if (sections.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-background-muted/50 px-6 py-16 text-center">
@@ -30,12 +35,15 @@ export function CategorySectionsFeed({ sections }: CategorySectionsFeedProps) {
           id={`section-${group.slug}`}
           aria-labelledby={`section-heading-${group.slug}`}
           className="scroll-mt-28">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+            <div className="min-w-0">
               <h2
                 id={`section-heading-${group.slug}`}
-                className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-                <span aria-hidden>{group.icon}</span> {group.nameKa}
+                className="text-base font-semibold leading-snug tracking-tight text-foreground sm:text-xl md:text-2xl">
+                <span className="text-lg sm:text-xl" aria-hidden>
+                  {group.icon}
+                </span>{" "}
+                {categoryName(group)}
               </h2>
               <p className="mt-1 text-sm text-foreground-muted">
                 {messages.home.listingsCount(listings.length)}

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import {
   normalizeCityForMap,
   type MapCoordinates,
@@ -32,6 +32,7 @@ export function ListingLocationPicker({
   value,
   onChange,
 }: ListingLocationPickerProps) {
+  const messages = useMessages();
   const cityKey = normalizeCityForMap(city);
   const prevCityKeyRef = useRef(cityKey);
 

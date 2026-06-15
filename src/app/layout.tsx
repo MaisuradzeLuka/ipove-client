@@ -4,7 +4,8 @@ import { Noto_Sans_Georgian } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
-import { messages } from "@/lib/i18n/messages";
+import { getServerLocale, getServerMessages } from "@/lib/i18n/server";
+import { setCurrentLocale } from "@/lib/i18n/current-locale";
 import "./globals.css";
 
 const notoGeorgian = Noto_Sans_Georgian({
@@ -17,23 +18,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: messages.metadata.title,
-  description: messages.metadata.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const messages = await getServerMessages();
+  return {
+    title: messages.metadata.title,
+    description: messages.metadata.description,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getServerLocale();
+  setCurrentLocale(locale);
+
   return (
     <html
-      lang="ka"
+      lang={locale}
       suppressHydrationWarning
       className={`${notoGeorgian.variable} ${geistMono.variable} h-full bg-background text-foreground antialiased`}>
       <body className="flex min-h-full flex-col bg-background">
-        <Providers>
+        <Providers initialLocale={locale}>
           <Navbar />
           {children}
           <Footer />

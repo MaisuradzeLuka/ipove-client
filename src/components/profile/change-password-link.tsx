@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { HiChevronRight, HiOutlineLockClosed } from "react-icons/hi2";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 export function ChangePasswordLink() {
+  const messages = useMessages();
+
   return (
     <Link
       href="/profile/change-password"

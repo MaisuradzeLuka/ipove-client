@@ -3,7 +3,7 @@ import { ListingFilters } from "@/components/home/listing-filters";
 import { ListingGrid } from "@/components/home/listing-grid";
 import { serverFetch } from "@/lib/api/server";
 import type { CategoriesResponse } from "@/lib/categories/types";
-import { messages } from "@/lib/i18n/messages";
+import { getServerLocale, getServerMessages } from "@/lib/i18n/server";
 import {
   buildHomeFeedQuery,
   buildListingsApiQuery,
@@ -20,6 +20,8 @@ type HomePageProps = {
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
+  const messages = await getServerMessages();
+  const locale = await getServerLocale();
   const filters: ListingFiltersState = {
     q: params.q,
     categorySlug: params.categorySlug,
@@ -61,6 +63,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     filters,
     categories.groups,
     listings.total,
+    messages,
+    locale,
   );
   const sections = groupListingsByCategory(
     listings.listings,

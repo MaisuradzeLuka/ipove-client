@@ -12,6 +12,7 @@ export type ListingCategory = {
   categoryId: string;
   slug: string;
   nameKa: string;
+  nameEn: string;
   icon: string;
 };
 

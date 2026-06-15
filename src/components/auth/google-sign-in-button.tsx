@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 type GoogleSignInButtonProps = {
   callbackURL?: string;
@@ -12,6 +12,7 @@ type GoogleSignInButtonProps = {
 export function GoogleSignInButton({
   callbackURL = "/",
 }: GoogleSignInButtonProps) {
+  const messages = useMessages();
   const router = useRouter();
   const { signInWithGoogle, refreshUser } = useAuth();
   const [error, setError] = useState<string | null>(null);

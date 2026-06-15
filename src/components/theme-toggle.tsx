@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 function SunIcon({ className }: { className?: string }) {
   return (
@@ -44,7 +44,12 @@ const segmentClass = (active: boolean) =>
       : "text-foreground-muted hover:text-foreground",
   ].join(" ");
 
-export function ThemeToggle() {
+type ThemeToggleProps = {
+  showLabels?: boolean;
+};
+
+export function ThemeToggle({ showLabels = false }: ThemeToggleProps) {
+  const messages = useMessages();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -65,7 +70,9 @@ export function ThemeToggle() {
         onClick={() => setTheme("light")}
         className={segmentClass(isLight)}>
         <SunIcon className="size-4 shrink-0" />
-        <span className="hidden sm:inline">{messages.theme.light}</span>
+        <span className={showLabels ? "inline" : "hidden sm:inline"}>
+          {messages.theme.light}
+        </span>
       </button>
       <button
         type="button"
@@ -74,7 +81,9 @@ export function ThemeToggle() {
         onClick={() => setTheme("dark")}
         className={segmentClass(isDark)}>
         <MoonIcon className="size-4 shrink-0" />
-        <span className="hidden sm:inline">{messages.theme.dark}</span>
+        <span className={showLabels ? "inline" : "hidden sm:inline"}>
+          {messages.theme.dark}
+        </span>
       </button>
     </div>
   );

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { HiOutlineXMark } from "react-icons/hi2";
 import type { CategoryGroup } from "@/lib/categories/types";
-import { messages } from "@/lib/i18n/messages";
+import { useCategoryName, useMessages } from "@/contexts/locale-context";
 import {
   filtersToSearchParams,
   GEORGIAN_CITIES,
@@ -36,6 +36,7 @@ function FilterSelect({
   disabled?: boolean;
   active?: boolean;
 }) {
+  const messages = useMessages();
   const selectedLabel =
     options.find((opt) => opt.value === value)?.label ?? label;
   const showActive = active && !disabled;
@@ -103,6 +104,8 @@ function flattenCategories(groups: CategoryGroup[]) {
 }
 
 export function ListingFilters({ categories, filters }: ListingFiltersProps) {
+  const messages = useMessages();
+  const categoryName = useCategoryName();
   const router = useRouter();
 
   const applyFilters = useCallback(
@@ -122,7 +125,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
     { value: "", label: messages.filters.all },
     ...flattenCategories(categories).map((cat) => ({
       value: cat.slug,
-      label: `${cat.icon} ${cat.nameKa}`,
+      label: `${cat.icon} ${categoryName(cat)}`,
     })),
   ];
 

@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { HiOutlineArrowLeft, HiOutlineMapPin } from "react-icons/hi2";
 import { ListingCard } from "@/components/home/listing-card";
 import { ListingOwnerAvatar } from "@/components/home/listing-owner-avatar";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import type { Listing } from "@/lib/listings/types";
 import {
   formatMemberSince,
@@ -16,6 +18,7 @@ type PublicProfileViewProps = {
 };
 
 export function PublicProfileView({ user, listings }: PublicProfileViewProps) {
+  const messages = useMessages();
   const name = publicUserDisplayName(user);
   const memberSince = formatMemberSince(user.createdAt);
 

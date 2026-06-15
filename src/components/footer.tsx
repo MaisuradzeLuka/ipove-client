@@ -5,17 +5,16 @@ import {
   HiOutlinePhone,
 } from "react-icons/hi2";
 import { Logo } from "@/components/logo/logo";
-import {
-  footerData,
-  formatFooterAddress,
-} from "@/lib/footer-data";
-import { messages } from "@/lib/i18n/messages";
+import { formatFooterAddress, getFooterData } from "@/lib/footer-data";
+import { getServerMessages } from "@/lib/i18n/server";
 
 const iconClass = "size-4 shrink-0 text-foreground-accent";
 
-export function Footer() {
+export async function Footer() {
+  const messages = await getServerMessages();
+  const footerData = getFooterData(messages);
   const year = new Date().getFullYear();
-  const fullAddress = formatFooterAddress();
+  const fullAddress = formatFooterAddress(messages);
 
   return (
     <footer className="mt-auto border-t border-border bg-background-surface/90 backdrop-blur-sm">

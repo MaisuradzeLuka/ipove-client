@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicProfileView } from "@/components/users/public-profile-view";
 import { serverFetch } from "@/lib/api/server";
-import { messages } from "@/lib/i18n/messages";
+import { getServerMessages } from "@/lib/i18n/server";
 import {
   publicUserDisplayName,
   type PublicUserProfileResponse,
@@ -16,6 +16,7 @@ export async function generateMetadata({
   params,
 }: UserProfilePageProps): Promise<Metadata> {
   const { id } = await params;
+  const messages = await getServerMessages();
   try {
     const { user } = await serverFetch<PublicUserProfileResponse>(
       `/api/v1/users/${id}`,

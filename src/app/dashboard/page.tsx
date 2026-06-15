@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { HiOutlinePencil, HiOutlinePlus, HiOutlineTrash } from "react-icons/hi2";
+import { DashboardListingsSkeleton, DashboardPageSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/auth-context";
 import { deleteListing, getMyListings } from "@/lib/api/listings";
-import { messages } from "@/lib/i18n/messages";
+import { useCategoryName, useMessages } from "@/contexts/locale-context";
 import type { Listing } from "@/lib/listings/types";
 
 export default function DashboardPage() {
+  const messages = useMessages();
+  const categoryName = useCategoryName();
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
@@ -29,7 +32,7 @@ export default function DashboardPage() {
     } finally {
       setLoadingListings(false);
     }
-  }, []);
+  }, [messages]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -59,11 +62,7 @@ export default function DashboardPage() {
   }
 
   if (isLoading || !user) {
-    return (
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-        <p className="text-sm text-foreground-muted">{messages.dashboard.loading}</p>
-      </main>
-    );
+    return <DashboardPageSkeleton />;
   }
 
   return (
@@ -80,7 +79,6 @@ export default function DashboardPage() {
         <Link
           href="/dashboard/listings/new"
           className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-foreground-on-accent transition-colors hover:bg-accent-hover">
-          <HiOutlinePlus className="size-4" aria-hidden />
           {messages.nav.addListing}
         </Link>
       </div>
@@ -94,9 +92,7 @@ export default function DashboardPage() {
       ) : null}
 
       {loadingListings ? (
-        <p className="mt-8 text-sm text-foreground-muted">
-          {messages.dashboard.loadingListings}
-        </p>
+        <DashboardListingsSkeleton />
       ) : listings.length === 0 ? (
         <div className="mt-8 rounded-xl border border-dashed border-border bg-background-muted/50 px-6 py-12 text-center">
           <p className="font-medium text-foreground">{messages.dashboard.empty}</p>
@@ -122,7 +118,7 @@ export default function DashboardPage() {
                       {listing.category.icon}
                     </span>
                     <span className="text-xs font-medium text-foreground-accent">
-                      {listing.category.nameKa}
+                      {categoryName(listing.category)}
                     </span>
                     <StatusPill status={listing.status} />
                   </div>
@@ -162,6 +158,7 @@ export default function DashboardPage() {
 }
 
 function StatusPill({ status }: { status: Listing["status"] }) {
+  const messages = useMessages();
   return (
     <span className="rounded-full bg-background-muted px-2 py-0.5 text-xs text-foreground-muted">
       {messages.listingDetail.statusLabel(status)}

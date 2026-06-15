@@ -5,9 +5,10 @@ import { FormEvent, useState } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { FormField } from "@/components/auth/form-field";
 import { useAuth } from "@/contexts/auth-context";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 export default function ForgotPasswordPage() {
+  const messages = useMessages();
   const { requestPasswordReset } = useAuth();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);

@@ -2,7 +2,7 @@
 
 import { useState, type InputHTMLAttributes } from "react";
 import { HiEye, HiEyeSlash } from "react-icons/hi2";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 type PasswordFieldProps = {
   id: string;
@@ -24,6 +24,7 @@ export function PasswordField({
   className = "",
   ...props
 }: PasswordFieldProps) {
+  const messages = useMessages();
   const [visible, setVisible] = useState(false);
 
   return (

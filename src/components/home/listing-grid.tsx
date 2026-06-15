@@ -1,5 +1,7 @@
+"use client";
+
 import { ListingCard } from "@/components/home/listing-card";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import type { Listing } from "@/lib/listings/types";
 
 type ListingGridProps = {
@@ -9,6 +11,8 @@ type ListingGridProps = {
 };
 
 export function ListingGrid({ listings, title, subtitle }: ListingGridProps) {
+  const messages = useMessages();
+
   if (listings.length === 0) {
     return (
       <section>

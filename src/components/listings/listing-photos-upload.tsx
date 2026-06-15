@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { HiOutlinePhoto, HiOutlineTrash, HiOutlineXMark } from "react-icons/hi2";
 import { uploadImage } from "@/lib/api/auth";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 const MAX_PHOTOS = 6;
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -19,6 +19,7 @@ export function ListingPhotosUpload({
   onChange,
   hint,
 }: ListingPhotosUploadProps) {
+  const messages = useMessages();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);

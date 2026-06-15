@@ -1,15 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { HiOutlineArrowLeft, HiOutlineMapPin } from "react-icons/hi2";
 import { ListingContactSection } from "@/components/listings/listing-contact-section";
 import { ListingLocationSection } from "@/components/listings/listing-location-section";
 import { ListingOwnerLink } from "@/components/users/listing-owner-link";
+import { useCategoryName, useMessages } from "@/contexts/locale-context";
 import {
   formatCompensation,
   formatExperienceYears,
   formatWorkMode,
 } from "@/lib/listings/display";
 import { listingCoverForListing } from "@/lib/listings/cover";
-import { messages } from "@/lib/i18n/messages";
 import type { Listing } from "@/lib/listings/types";
 
 type ListingDetailViewProps = {
@@ -24,11 +26,14 @@ function ListingHeaderTop({
   listing: Listing;
   isOwner?: boolean;
 }) {
+  const messages = useMessages();
+  const categoryName = useCategoryName();
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-sm font-medium text-foreground-accent">
         <span aria-hidden>{listing.category.icon}</span>
-        {listing.category.nameKa}
+        {categoryName(listing.category)}
       </span>
       {isOwner && listing.status !== "active" ? (
         <span className="rounded-full bg-warning-soft px-3 py-1 text-xs font-medium text-warning-foreground">
@@ -40,6 +45,7 @@ function ListingHeaderTop({
 }
 
 export function ListingDetailView({ listing, isOwner }: ListingDetailViewProps) {
+  const messages = useMessages();
   const coverUrl = listingCoverForListing(listing);
   const experience = formatExperienceYears(listing.experienceYears);
   const compensation = formatCompensation(

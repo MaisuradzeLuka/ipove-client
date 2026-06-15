@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
   HiOutlineArrowTopRightOnSquare,
   HiOutlineMapPin,
@@ -13,11 +13,12 @@ import { AvatarUpload } from "@/components/auth/avatar-upload";
 import { FormField } from "@/components/auth/form-field";
 import { ListingCard } from "@/components/home/listing-card";
 import { ChangePasswordLink } from "@/components/profile/change-password-link";
+import { ListingGridSkeleton, ProfilePageSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/auth-context";
 import { getMyListings } from "@/lib/api/listings";
 import { userDisplayName } from "@/lib/auth/display";
 import type { User } from "@/lib/auth/types";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import { formatPhoneDisplay } from "@/lib/listings/contact";
 import type { Listing } from "@/lib/listings/types";
 import { getProfileCompleteness } from "@/lib/profile/completeness";
@@ -26,16 +27,20 @@ import {
   publicUserProfilePath,
 } from "@/lib/users/types";
 
-const missingLabels = {
-  name: messages.profile.missingName,
-  lastname: messages.profile.missingLastname,
-  phone: messages.profile.missingPhone,
-  city: messages.profile.missingCity,
-  address: messages.profile.missingAddress,
-  avatar: messages.profile.missingAvatar,
-} as const;
-
 export function ProfilePageView() {
+  const messages = useMessages();
+  const missingLabels = useMemo(
+    () =>
+      ({
+        name: messages.profile.missingName,
+        lastname: messages.profile.missingLastname,
+        phone: messages.profile.missingPhone,
+        city: messages.profile.missingCity,
+        address: messages.profile.missingAddress,
+        avatar: messages.profile.missingAvatar,
+      }) as const,
+    [messages],
+  );
   const router = useRouter();
   const { user, isLoading, updateProfile, uploadAvatar } = useAuth();
 
@@ -83,11 +88,7 @@ export function ProfilePageView() {
   }, [user, loadListings]);
 
   if (isLoading || !user) {
-    return (
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
-        <p className="text-sm text-foreground-muted">{messages.profile.loading}</p>
-      </main>
-    );
+    return <ProfilePageSkeleton />;
   }
 
   const displayName =
@@ -197,7 +198,7 @@ export function ProfilePageView() {
             <Link
               href="/dashboard/listings/new"
               className="flex flex-col gap-2 rounded-2xl border border-accent/30 bg-accent-soft/50 p-4 shadow-xs transition-colors hover:border-accent/50">
-              <HiOutlinePlus className="size-5 text-foreground-accent" aria-hidden />
+             
               <span className="text-sm font-semibold text-foreground">
                 {messages.profile.addListing}
               </span>
@@ -325,9 +326,9 @@ export function ProfilePageView() {
             </div>
 
             {loadingListings ? (
-              <p className="mt-6 text-sm text-foreground-muted">
-                {messages.dashboard.loadingListings}
-              </p>
+              <div className="mt-6">
+                <ListingGridSkeleton count={3} showHeader={false} />
+              </div>
             ) : previewListings.length === 0 ? (
               <div className="mt-6 rounded-xl border border-dashed border-border bg-background-muted/40 px-6 py-10 text-center">
                 <p className="text-sm text-foreground-muted">
@@ -360,6 +361,20 @@ function ProfileCompletenessCard({
 }: {
   completeness: ReturnType<typeof getProfileCompleteness>;
 }) {
+  const messages = useMessages();
+  const missingLabels = useMemo(
+    () =>
+      ({
+        name: messages.profile.missingName,
+        lastname: messages.profile.missingLastname,
+        phone: messages.profile.missingPhone,
+        city: messages.profile.missingCity,
+        address: messages.profile.missingAddress,
+        avatar: messages.profile.missingAvatar,
+      }) as const,
+    [messages],
+  );
+
   if (completeness.percent >= 100) return null;
 
   return (

@@ -3,9 +3,15 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, Suspense } from "react";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
-function NavSearchInner() {
+type NavSearchProps = {
+  className?: string;
+  onNavigate?: () => void;
+};
+
+function NavSearchInner({ className, onNavigate }: NavSearchProps) {
+  const messages = useMessages();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
@@ -21,10 +27,13 @@ function NavSearchInner() {
     }
     const search = params.toString();
     router.push(search ? `/?${search}` : "/");
+    onNavigate?.();
   }
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-52 sm:w-64 lg:w-72">
+    <form
+      onSubmit={handleSubmit}
+      className={`relative ${className ?? "w-52 sm:w-64 lg:w-72"}`}>
       <HiOutlineMagnifyingGlass
         className="pointer-events-none absolute left-3 top-1/2 size-[18px] -translate-y-1/2 text-foreground-subtle"
         aria-hidden
@@ -40,10 +49,10 @@ function NavSearchInner() {
   );
 }
 
-export function NavSearch() {
+export function NavSearch(props: NavSearchProps) {
   return (
     <Suspense>
-      <NavSearchInner />
+      <NavSearchInner {...props} />
     </Suspense>
   );
 }

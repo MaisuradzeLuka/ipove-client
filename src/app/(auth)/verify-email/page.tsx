@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { useAuth } from "@/contexts/auth-context";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 export default function VerifyEmailPage() {
   return (
@@ -16,6 +16,7 @@ export default function VerifyEmailPage() {
 }
 
 function VerifyEmailResult() {
+  const messages = useMessages();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { HiOutlineMapPin } from "react-icons/hi2";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import {
   googleMapsUrl,
   hasMapLocation,
@@ -29,6 +29,7 @@ type ListingLocationSectionProps = {
 };
 
 export function ListingLocationSection({ listing }: ListingLocationSectionProps) {
+  const messages = useMessages();
   if (!hasMapLocation(listing)) return null;
 
   const coords: MapCoordinates = {

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { UserAvatar } from "@/components/auth/user-avatar";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import type { User } from "@/lib/auth/types";
 
 type AvatarUploadProps = {
@@ -23,6 +23,7 @@ export function AvatarUpload({
   onPreviewChange,
   onUpload,
 }: AvatarUploadProps) {
+  const messages = useMessages();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);

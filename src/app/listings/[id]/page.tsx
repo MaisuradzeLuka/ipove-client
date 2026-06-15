@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ListingDetailView } from "@/components/listings/listing-detail-view";
 import { serverFetch } from "@/lib/api/server";
-import { messages } from "@/lib/i18n/messages";
+import { getServerMessages } from "@/lib/i18n/server";
 import type { ListingResponse } from "@/lib/listings/types";
 import type { User } from "@/lib/auth/types";
 
@@ -16,6 +16,7 @@ export async function generateMetadata({
   params,
 }: ListingPageProps): Promise<Metadata> {
   const { id } = await params;
+  const messages = await getServerMessages();
   try {
     const { listing } = await serverFetch<ListingResponse>(
       `/api/v1/listings/${id}`,

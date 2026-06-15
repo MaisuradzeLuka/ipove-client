@@ -6,7 +6,8 @@ import { FormEvent, Suspense, useState } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { PasswordField } from "@/components/auth/password-field";
 import { authClient } from "@/lib/auth-client";
-import { messages, translateApiError } from "@/lib/i18n";
+import { useMessages } from "@/contexts/locale-context";
+import { translateApiError } from "@/lib/i18n/translate-api-error";
 
 export default function ResetPasswordPage() {
   return (
@@ -17,6 +18,7 @@ export default function ResetPasswordPage() {
 }
 
 function ResetPasswordForm() {
+  const messages = useMessages();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");

@@ -7,9 +7,11 @@ import { HiOutlineArrowLeft } from "react-icons/hi2";
 import { PasswordField } from "@/components/auth/password-field";
 import { useAuth } from "@/contexts/auth-context";
 import { authClient } from "@/lib/auth-client";
-import { messages, translateApiError } from "@/lib/i18n";
+import { useMessages } from "@/contexts/locale-context";
+import { translateApiError } from "@/lib/i18n/translate-api-error";
 
 export default function ChangePasswordPage() {
+  const messages = useMessages();
   const router = useRouter();
   const { user, isLoading } = useAuth();
 

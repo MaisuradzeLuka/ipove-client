@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ListingForm } from "@/components/listings/listing-form";
 import { useAuth } from "@/contexts/auth-context";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 export default function NewListingPage() {
+  const messages = useMessages();
   const router = useRouter();
   const { user, isLoading } = useAuth();
 

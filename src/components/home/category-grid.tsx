@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { messages } from "@/lib/i18n/messages";
+import { useCategoryName, useMessages } from "@/contexts/locale-context";
 import type { CategoryGroup, CategoryItem } from "@/lib/categories/types";
 
 type CategoryGridProps = {
@@ -15,13 +17,15 @@ export function CategoryGrid({
   groups,
   activeCategorySlug,
 }: CategoryGridProps) {
+  const messages = useMessages();
+  const categoryName = useCategoryName();
   const categories = flattenCategories(groups);
 
   return (
     <section aria-labelledby="categories-heading">
       <h2
         id="categories-heading"
-        className="text-lg font-semibold text-foreground">
+        className="text-base font-semibold text-foreground sm:text-lg">
         {messages.home.categoriesTitle}
       </h2>
       <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -44,7 +48,7 @@ export function CategoryGrid({
                   {category.icon}
                 </span>
                 <span className="text-xs font-medium leading-snug">
-                  {category.nameKa}
+                  {categoryName(category)}
                 </span>
               </Link>
             </li>

@@ -8,9 +8,10 @@ import { FormField } from "@/components/auth/form-field";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { PasswordField } from "@/components/auth/password-field";
 import { useAuth } from "@/contexts/auth-context";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 
 export default function SignUpPage() {
+  const messages = useMessages();
   const router = useRouter();
   const { signUp } = useAuth();
   const [email, setEmail] = useState("");

@@ -6,10 +6,11 @@ import { useEffect, useState } from "react";
 import { ListingForm } from "@/components/listings/listing-form";
 import { useAuth } from "@/contexts/auth-context";
 import { getListingById } from "@/lib/api/listings";
-import { messages } from "@/lib/i18n/messages";
+import { useMessages } from "@/contexts/locale-context";
 import type { Listing } from "@/lib/listings/types";
 
 export default function EditListingPage() {
+  const messages = useMessages();
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const { user, isLoading } = useAuth();

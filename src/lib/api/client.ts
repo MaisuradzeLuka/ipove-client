@@ -1,4 +1,5 @@
-import { messages } from "@/lib/i18n/messages";
+import { getCurrentLocale } from "@/lib/i18n/current-locale";
+import { getMessages } from "@/lib/i18n/get-messages";
 import { translateApiError } from "@/lib/i18n/translate-api-error";
 
 const API_BASE =
@@ -34,7 +35,7 @@ async function parseErrorMessage(res: Response): Promise<string> {
   } catch {
     /* ignore */
   }
-  return translateApiError(res.statusText || messages.auth.requestFailed);
+  return translateApiError(res.statusText || getMessages(getCurrentLocale()).auth.requestFailed);
 }
 
 export async function apiFetch<T>(
