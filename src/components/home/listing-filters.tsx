@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HiOutlineXMark } from "react-icons/hi2";
 import type { CategoryGroup } from "@/lib/categories/types";
 import { useCategoryName, useMessages } from "@/contexts/locale-context";
@@ -18,6 +18,15 @@ type ListingFiltersProps = {
 };
 
 type Option = { value: string; label: string };
+
+const optionClass = (selected: boolean) =>
+  [
+    "w-full px-3 py-2 text-left text-sm transition-colors",
+    "hover:bg-background-muted focus-visible:bg-background-muted focus-visible:outline-none",
+    selected
+      ? "bg-background-muted font-semibold text-foreground"
+      : "text-foreground",
+  ].join(" ");
 
 function FilterSelect({
   label,
@@ -37,18 +46,62 @@ function FilterSelect({
   active?: boolean;
 }) {
   const messages = useMessages();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const selectedLabel =
     options.find((opt) => opt.value === value)?.label ?? label;
   const showActive = active && !disabled;
 
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  function selectOption(next: string) {
+    onChange(next);
+    setOpen(false);
+  }
+
   return (
     <div
+      ref={rootRef}
       className={`group relative min-h-13 rounded-lg border bg-background-surface transition-colors ${
+        open ? "z-20" : ""
+      } ${
         disabled
           ? "cursor-not-allowed border-border/60 bg-background-subtle/50 opacity-70"
-          : "border-border hover:border-foreground-subtle/50"
+          : open
+            ? "border-foreground-subtle/50"
+            : "border-border hover:border-foreground-subtle/50"
       }`}>
-      <div className="pointer-events-none flex h-full flex-col justify-center px-3 py-2.5 pr-9">
+      <button
+        type="button"
+        disabled={disabled}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-label={label}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={(e) => {
+          if (disabled) return;
+          if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="flex h-full min-h-13 w-full flex-col justify-center px-3 py-2.5 pr-9 text-left disabled:cursor-not-allowed">
         {showActive ? (
           <>
             <span className="text-xs text-foreground-muted">{label}</span>
@@ -58,23 +111,10 @@ function FilterSelect({
           </>
         ) : (
           <span className="truncate text-sm text-foreground-muted">
-            {disabled ? options[0]?.label ?? label : label}
+            {disabled ? (options[0]?.label ?? label) : label}
           </span>
         )}
-      </div>
-
-      <select
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
-        className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed"
-        aria-label={label}>
-        {options.map((opt) => (
-          <option key={opt.value || "all"} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      </button>
 
       {showActive && onClear ? (
         <button
@@ -94,6 +134,29 @@ function FilterSelect({
           aria-hidden>
           ▾
         </span>
+      ) : null}
+
+      {open && !disabled ? (
+        <ul
+          role="listbox"
+          aria-label={label}
+          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-lg border border-border bg-background-surface py-1 shadow-md">
+          {options.map((opt) => {
+            const selected = opt.value === value;
+            return (
+              <li key={opt.value || "all"} role="presentation">
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => selectOption(opt.value)}
+                  className={optionClass(selected)}>
+                  {opt.label}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       ) : null}
     </div>
   );
@@ -167,13 +230,13 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
 
   const hasActiveFilters = Boolean(
     filters.q ||
-      filters.categorySlug ||
-      filters.groupSlug ||
-      filters.city ||
-      filters.compensationType ||
-      filters.minExperience ||
-      filters.workMode ||
-      filters.sortBy,
+    filters.categorySlug ||
+    filters.groupSlug ||
+    filters.city ||
+    filters.compensationType ||
+    filters.minExperience ||
+    filters.workMode ||
+    filters.sortBy,
   );
 
   const sortValue = filters.sortBy ?? "popular";
