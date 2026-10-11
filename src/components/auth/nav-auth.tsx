@@ -21,6 +21,8 @@ export function NavAuth({ variant = "dropdown", onNavigate }: NavAuthProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  console.log(user);
+
   useEffect(() => {
     if (!open) return;
     function onPointerDown(e: MouseEvent) {
@@ -36,11 +38,10 @@ export function NavAuth({ variant = "dropdown", onNavigate }: NavAuthProps) {
     return (
       <div
         className={
-          variant === "inline"
-            ? "flex items-center gap-3 px-3 py-2"
-            : undefined
+          variant === "inline" ? "flex items-center gap-3 px-3 py-2" : undefined
         }
-        aria-hidden>
+        aria-hidden
+      >
         {variant === "inline" ? (
           <>
             <div className="size-10 shrink-0 rounded-full bg-background-muted" />
@@ -75,24 +76,17 @@ export function NavAuth({ variant = "dropdown", onNavigate }: NavAuthProps) {
         <Link
           href="/profile"
           onClick={onNavigate}
-          className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-background-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset">
+          className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-background-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset"
+        >
           <UserAvatar user={user} size="md" />
           <span className="min-w-0 truncate text-sm font-medium text-foreground">
             {userDisplayName(user)}
           </span>
         </Link>
-        <Link
-          href="/dashboard"
-          onClick={onNavigate}
-          className={linkClass}
-        >
+        <Link href="/dashboard" onClick={onNavigate} className={linkClass}>
           {messages.nav.myListings}
         </Link>
-        <Link
-          href="/profile"
-          onClick={onNavigate}
-          className={linkClass}
-        >
+        <Link href="/profile" onClick={onNavigate} className={linkClass}>
           {messages.nav.profile}
         </Link>
         <button

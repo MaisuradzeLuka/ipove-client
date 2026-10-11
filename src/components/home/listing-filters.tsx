@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import { HiOutlineXMark } from "react-icons/hi2";
+import { Select, type SelectOption } from "@/components/select";
 import type { CategoryGroup } from "@/lib/categories/types";
 import { useCategoryName, useMessages } from "@/contexts/locale-context";
 import {
@@ -17,17 +18,6 @@ type ListingFiltersProps = {
   filters: ListingFiltersState;
 };
 
-type Option = { value: string; label: string };
-
-const optionClass = (selected: boolean) =>
-  [
-    "w-full px-3 py-2 text-left text-sm transition-colors",
-    "hover:bg-background-muted focus-visible:bg-background-muted focus-visible:outline-none",
-    selected
-      ? "bg-background-muted font-semibold text-foreground"
-      : "text-foreground",
-  ].join(" ");
-
 function FilterSelect({
   label,
   value,
@@ -39,126 +29,26 @@ function FilterSelect({
 }: {
   label: string;
   value: string;
-  options: Option[];
+  options: SelectOption[];
   onChange: (value: string) => void;
   onClear?: () => void;
   disabled?: boolean;
   active?: boolean;
 }) {
   const messages = useMessages();
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const selectedLabel =
-    options.find((opt) => opt.value === value)?.label ?? label;
-  const showActive = active && !disabled;
-
-  useEffect(() => {
-    if (!open) return;
-    function onPointerDown(e: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
-
-  function selectOption(next: string) {
-    onChange(next);
-    setOpen(false);
-  }
 
   return (
-    <div
-      ref={rootRef}
-      className={`group relative min-h-13 rounded-lg border bg-background-surface transition-colors ${
-        open ? "z-20" : ""
-      } ${
-        disabled
-          ? "cursor-not-allowed border-border/60 bg-background-subtle/50 opacity-70"
-          : open
-            ? "border-foreground-subtle/50"
-            : "border-border hover:border-foreground-subtle/50"
-      }`}>
-      <button
-        type="button"
-        disabled={disabled}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-label={label}
-        onClick={() => setOpen((current) => !current)}
-        onKeyDown={(e) => {
-          if (disabled) return;
-          if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setOpen(true);
-          }
-        }}
-        className="flex h-full min-h-13 w-full flex-col justify-center px-3 py-2.5 pr-9 text-left disabled:cursor-not-allowed">
-        {showActive ? (
-          <>
-            <span className="text-xs text-foreground-muted">{label}</span>
-            <span className="truncate text-sm font-semibold text-foreground">
-              {selectedLabel}
-            </span>
-          </>
-        ) : (
-          <span className="truncate text-sm text-foreground-muted">
-            {disabled ? (options[0]?.label ?? label) : label}
-          </span>
-        )}
-      </button>
-
-      {showActive && onClear ? (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClear();
-          }}
-          className="absolute right-2.5 top-1/2 z-10 -translate-y-1/2 rounded p-0.5 text-foreground-subtle transition-colors hover:text-foreground"
-          aria-label={`${label} — ${messages.filters.clear}`}>
-          <HiOutlineXMark className="size-4" aria-hidden />
-        </button>
-      ) : !disabled ? (
-        <span
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-foreground-subtle"
-          aria-hidden>
-          ▾
-        </span>
-      ) : null}
-
-      {open && !disabled ? (
-        <ul
-          role="listbox"
-          aria-label={label}
-          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-lg border border-border bg-background-surface py-1 shadow-md">
-          {options.map((opt) => {
-            const selected = opt.value === value;
-            return (
-              <li key={opt.value || "all"} role="presentation">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={selected}
-                  onClick={() => selectOption(opt.value)}
-                  className={optionClass(selected)}>
-                  {opt.label}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
-    </div>
+    <Select
+      variant="filter"
+      label={label}
+      value={value}
+      options={options}
+      disabled={disabled}
+      active={active}
+      clearLabel={`${label} — ${messages.filters.clear}`}
+      onChange={onChange}
+      onClear={onClear}
+    />
   );
 }
 
@@ -184,7 +74,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
     applyFilters({ ...filters, ...partial });
   }
 
-  const categoryOptions: Option[] = [
+  const categoryOptions: SelectOption[] = [
     { value: "", label: messages.filters.all },
     ...flattenCategories(categories).map((cat) => ({
       value: cat.slug,
@@ -192,12 +82,12 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
     })),
   ];
 
-  const cityOptions: Option[] = [
+  const cityOptions: SelectOption[] = [
     { value: "", label: messages.filters.all },
     ...GEORGIAN_CITIES.map((city) => ({ value: city, label: city })),
   ];
 
-  const compensationOptions: Option[] = [
+  const compensationOptions: SelectOption[] = [
     { value: "", label: messages.filters.all },
     { value: "one_time", label: messages.filters.compensationOneTime },
     { value: "monthly", label: messages.filters.compensationMonthly },
@@ -205,7 +95,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
     { value: "negotiable", label: messages.filters.compensationNegotiable },
   ];
 
-  const experienceOptions: Option[] = [
+  const experienceOptions: SelectOption[] = [
     { value: "", label: messages.filters.all },
     { value: "1", label: messages.filters.experience1 },
     { value: "3", label: messages.filters.experience3 },
@@ -213,7 +103,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
     { value: "10", label: messages.filters.experience10 },
   ];
 
-  const sortOptions: Option[] = [
+  const sortOptions: SelectOption[] = [
     { value: "popular", label: messages.filters.sortPopular },
     { value: "newest", label: messages.filters.sortNewest },
     { value: "oldest", label: messages.filters.sortOldest },
@@ -221,7 +111,7 @@ export function ListingFilters({ categories, filters }: ListingFiltersProps) {
     { value: "price_desc", label: messages.filters.sortPriceDesc },
   ];
 
-  const workModeOptions: Option[] = [
+  const workModeOptions: SelectOption[] = [
     { value: "", label: messages.filters.all },
     { value: "onsite", label: messages.filters.workModeOnsite },
     { value: "remote", label: messages.filters.workModeRemote },

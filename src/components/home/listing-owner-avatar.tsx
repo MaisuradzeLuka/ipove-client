@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { AVATAR_FALLBACK_SRC, avatarSrc } from "@/lib/auth/avatar";
 import { listingOwnerDisplayName } from "@/lib/listings/display";
 import type { ListingOwner } from "@/lib/listings/types";
 
@@ -13,18 +17,6 @@ const sizeClasses = {
   lg: "size-20 text-xl",
 };
 
-function initials(owner: ListingOwner) {
-  const name = [owner.name, owner.lastname].filter(Boolean).join(" ").trim();
-  if (name) {
-    return name
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("");
-  }
-  return "?";
-}
-
 export function ListingOwnerAvatar({
   owner,
   size = "sm",
@@ -32,25 +24,19 @@ export function ListingOwnerAvatar({
 }: ListingOwnerAvatarProps) {
   const sizeClass = sizeClasses[size];
   const label = listingOwnerDisplayName(owner);
+  const src = avatarSrc(owner.avatar);
+  const [failed, setFailed] = useState(false);
 
-  if (owner.avatar) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={owner.avatar}
-        alt=""
-        title={label}
-        className={`rounded-full object-cover ring-2 ring-border ${sizeClass} ${className}`}
-      />
-    );
-  }
+  useEffect(() => setFailed(false), [src]);
 
   return (
-    <span
-      aria-hidden
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={failed ? AVATAR_FALLBACK_SRC : src}
+      alt=""
       title={label}
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-foreground-accent ring-2 ring-border ${sizeClass} ${className}`}>
-      {initials(owner)}
-    </span>
+      onError={() => setFailed(true)}
+      className={`inline-flex shrink-0 rounded-full object-cover ring-2 ring-border ${sizeClass} ${className}`}
+    />
   );
 }

@@ -3,7 +3,8 @@ import { getMessages } from "@/lib/i18n/get-messages";
 import { translateApiError } from "@/lib/i18n/translate-api-error";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:8080";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
+  "http://localhost:8080";
 
 export class ApiError extends Error {
   constructor(
@@ -28,14 +29,19 @@ async function parseErrorMessage(res: Response): Promise<string> {
           return translateApiError(String(err[0].message));
         }
       }
-      if ("message" in data && typeof (data as { message: unknown }).message === "string") {
+      if (
+        "message" in data &&
+        typeof (data as { message: unknown }).message === "string"
+      ) {
         return translateApiError((data as { message: string }).message);
       }
     }
   } catch {
     /* ignore */
   }
-  return translateApiError(res.statusText || getMessages(getCurrentLocale()).auth.requestFailed);
+  return translateApiError(
+    res.statusText || getMessages(getCurrentLocale()).auth.requestFailed,
+  );
 }
 
 export async function apiFetch<T>(

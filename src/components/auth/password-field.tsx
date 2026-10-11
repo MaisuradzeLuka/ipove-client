@@ -40,7 +40,7 @@ export function PasswordField({
           aria-describedby={
             error ? `${id}-error` : hint ? `${id}-hint` : undefined
           }
-          className={`${inputClass} ${error ? "border-error" : ""} ${className} mt-2`}
+          className={`${inputClass} ${error ? "border-error focus-visible:ring-error" : ""} ${className} mt-2`}
           {...props}
         />
         <button

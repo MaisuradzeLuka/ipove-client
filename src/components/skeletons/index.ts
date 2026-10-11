@@ -6,3 +6,4 @@ export { PageHeaderSkeleton } from "@/components/skeletons/page-header-skeleton"
 export { HomePageSkeleton } from "@/components/skeletons/home-page-skeleton";
 export { DashboardListingsSkeleton, DashboardPageSkeleton } from "@/components/skeletons/dashboard-page-skeleton";
 export { ProfilePageSkeleton } from "@/components/skeletons/profile-page-skeleton";
+export { ListingDetailSkeleton } from "@/components/skeletons/listing-detail-skeleton";

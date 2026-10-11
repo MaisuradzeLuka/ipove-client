@@ -8,6 +8,7 @@ import {
   HiOutlineCheck,
 } from "react-icons/hi2";
 import { FormField } from "@/components/auth/form-field";
+import { Select } from "@/components/select";
 import { ListingPhotosUpload } from "@/components/listings/listing-photos-upload";
 import { getCategories } from "@/lib/api/categories";
 import { createListing, updateListing } from "@/lib/api/listings";
@@ -27,9 +28,6 @@ import type {
   WorkMode,
 } from "@/lib/listings/types";
 
-const selectClass =
-  "w-full rounded-xl border border-border bg-background-surface px-4 py-2.5 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset";
-
 const textareaClass =
   "w-full rounded-xl border border-border bg-background-surface px-4 py-2.5 text-foreground outline-none placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset";
 
@@ -46,6 +44,37 @@ function splitList(value: string): string[] {
     .split(/[,;\n]/)
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+type ListingField =
+  | "categoryId"
+  | "photos"
+  | "title"
+  | "description"
+  | "city"
+  | "experienceYears"
+  | "hourlyRate"
+  | "skills";
+
+const STEP_FIELDS: Record<number, ListingField[]> = {
+  1: ["categoryId", "photos"],
+  2: ["title", "description", "city", "experienceYears"],
+  3: ["hourlyRate", "skills"],
+};
+
+function FieldErrorText({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="text-xs text-error">
+      {message}
+    </p>
+  );
+}
+
+function invalidControlClass(base: string, invalid: boolean) {
+  return invalid
+    ? `${base} border-error focus-visible:ring-error`
+    : base;
 }
 
 function StepProgress({ step }: { step: number }) {
@@ -185,7 +214,24 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
     listing?.status ?? "active",
   );
   const [error, setError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState<Partial<Record<ListingField, boolean>>>(
+    {},
+  );
   const [submitting, setSubmitting] = useState(false);
+
+  function markDirty(field: ListingField) {
+    setDirty((current) =>
+      current[field] ? current : { ...current, [field]: true },
+    );
+  }
+
+  function markFieldsDirty(fields: ListingField[]) {
+    setDirty((current) => {
+      const next = { ...current };
+      for (const field of fields) next[field] = true;
+      return next;
+    });
+  }
 
   useEffect(() => {
     getCategories()
@@ -199,26 +245,71 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
     [groups, categoryId, messages],
   );
 
-  function validateStep(current: number): string | null {
-    if (current === 1) {
-      if (!categoryId) return messages.listingForm.categoryRequired;
-      if (photos.length === 0) return messages.listingForm.photosRequired;
+  const fieldErrors = useMemo(() => {
+    const next: Partial<Record<ListingField, string>> = {};
+    const trimmedTitle = title.trim();
+    const trimmedDescription = description.trim();
+
+    if (!categoryId) next.categoryId = messages.listingForm.categoryRequired;
+    if (photos.length === 0) next.photos = messages.listingForm.photosRequired;
+    else if (photos.length > 6) next.photos = messages.listingForm.photosMax;
+
+    if (!trimmedTitle) next.title = messages.listingForm.titleRequired;
+    else if (trimmedTitle.length < 3) next.title = messages.listingForm.titleMin;
+    else if (trimmedTitle.length > 120) next.title = messages.listingForm.titleMax;
+
+    if (trimmedDescription.length < 10) {
+      next.description = messages.listingForm.descriptionRequired;
+    } else if (trimmedDescription.length > 5000) {
+      next.description = messages.listingForm.descriptionMax;
     }
-    if (current === 2) {
-      if (!title.trim()) return messages.listingForm.titleRequired;
-      if (description.trim().length < 10)
-        return messages.listingForm.descriptionRequired;
-      if (!city.trim()) return messages.listingForm.cityRequired;
+
+    if (!city.trim()) next.city = messages.listingForm.cityRequired;
+
+    if (experienceYears.trim()) {
+      const years = Number(experienceYears);
+      if (!Number.isInteger(years) || years < 0 || years > 80) {
+        next.experienceYears = messages.listingForm.experienceInvalid;
+      }
     }
-    return null;
+
+    if (compensationType !== "negotiable" && hourlyRate.trim()) {
+      const rate = Number(hourlyRate);
+      if (!Number.isInteger(rate) || rate < 0 || rate > 1_000_000) {
+        next.hourlyRate = messages.listingForm.priceInvalid;
+      }
+    }
+
+    const skillList = splitList(skills);
+    if (skillList.length > 20 || skillList.some((skill) => skill.length > 50)) {
+      next.skills = messages.listingForm.skillsInvalid;
+    }
+
+    return next;
+  }, [
+    categoryId,
+    photos.length,
+    title,
+    description,
+    city,
+    experienceYears,
+    compensationType,
+    hourlyRate,
+    skills,
+    messages,
+  ]);
+
+  function shownError(field: ListingField) {
+    return dirty[field] ? fieldErrors[field] : undefined;
+  }
+
+  function stepHasErrors(current: number) {
+    return STEP_FIELDS[current].some((field) => fieldErrors[field]);
   }
 
   function goNext() {
-    const validationError = validateStep(step);
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
+    markFieldsDirty(STEP_FIELDS[step]);
+    if (stepHasErrors(step)) return;
     setError(null);
     setStep((s) => Math.min(s + 1, TOTAL_STEPS));
   }
@@ -231,10 +322,14 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
   async function handleSubmit(e?: FormEvent) {
     e?.preventDefault();
 
-    const validationError = validateStep(2);
-    if (validationError) {
-      setError(validationError);
-      setStep(2);
+    markFieldsDirty([
+      ...STEP_FIELDS[1],
+      ...STEP_FIELDS[2],
+      ...STEP_FIELDS[3],
+    ]);
+    const invalidStep = [1, 2, 3].find((current) => stepHasErrors(current));
+    if (invalidStep) {
+      setStep(invalidStep);
       return;
     }
 
@@ -311,36 +406,51 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
           </div>
 
           <div className="space-y-1.5">
-            <label
-              htmlFor="categoryId"
-              className="text-sm font-medium text-foreground">
-              {messages.listingForm.category}
-            </label>
-            <select
+            <Select
               id="categoryId"
-              required
+              label={messages.listingForm.category}
               disabled={loadingCategories}
               value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className={selectClass}>
-              <option value="">
-                {loadingCategories
+              invalid={Boolean(shownError("categoryId"))}
+              describedBy={
+                shownError("categoryId") ? "categoryId-error" : undefined
+              }
+              onBlur={() => markDirty("categoryId")}
+              onChange={setCategoryId}
+              placeholder={
+                loadingCategories
                   ? messages.listingForm.loadingCategories
-                  : messages.listingForm.selectCategory}
-              </option>
-              {groups.map((group) => (
-                <optgroup key={group.categoryId} label={categoryName(group)}>
-                  {group.children.map((child) => (
-                    <option key={child.categoryId} value={child.categoryId}>
-                      {child.icon} {categoryName(child)}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+                  : messages.listingForm.selectCategory
+              }
+              options={[
+                {
+                  value: "",
+                  label: loadingCategories
+                    ? messages.listingForm.loadingCategories
+                    : messages.listingForm.selectCategory,
+                },
+              ]}
+              groups={groups.map((group) => ({
+                label: categoryName(group),
+                options: group.children.map((child) => ({
+                  value: child.categoryId,
+                  label: `${child.icon} ${categoryName(child)}`,
+                })),
+              }))}
+            />
+            <FieldErrorText
+              id="categoryId-error"
+              message={shownError("categoryId")}
+            />
           </div>
 
-          <div className="space-y-2">
+          <div
+            className="space-y-2"
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                markDirty("photos");
+              }
+            }}>
             <p className="text-sm font-medium text-foreground">
               {messages.listingForm.photosLabel}
             </p>
@@ -349,6 +459,7 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
               onChange={setPhotos}
               hint={categoryId ? hints.photo : undefined}
             />
+            <FieldErrorText id="photos-error" message={shownError("photos")} />
           </div>
         </div>
       ) : null}
@@ -369,6 +480,8 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
             label={messages.listingForm.title}
             required
             value={title}
+            error={shownError("title")}
+            onBlur={() => markDirty("title")}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={hints.title}
             hint={categoryId ? `💡 ${hints.title}` : undefined}
@@ -385,12 +498,29 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
               required
               rows={6}
               value={description}
+              aria-invalid={shownError("description") ? true : undefined}
+              aria-describedby={
+                shownError("description")
+                  ? "description-error"
+                  : categoryId
+                    ? "description-hint"
+                    : undefined
+              }
+              onBlur={() => markDirty("description")}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={hints.description}
-              className={textareaClass}
+              className={invalidControlClass(
+                textareaClass,
+                Boolean(shownError("description")),
+              )}
             />
-            {categoryId ? (
-              <p className="text-xs text-foreground-subtle">
+            {shownError("description") ? (
+              <FieldErrorText
+                id="description-error"
+                message={shownError("description")}
+              />
+            ) : categoryId ? (
+              <p id="description-hint" className="text-xs text-foreground-subtle">
                 💡 {hints.description}
               </p>
             ) : null}
@@ -398,25 +528,25 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label htmlFor="city" className="text-sm font-medium text-foreground">
-                {messages.listingForm.city}
-              </label>
-              <select
+              <Select
                 id="city"
-                required
+                label={messages.listingForm.city}
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className={selectClass}>
-                <option value="">{messages.listingForm.selectCity}</option>
-                {GEORGIAN_CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-                {(GEORGIAN_CITIES as readonly string[]).includes(city) ? null : city ? (
-                  <option value={city}>{city}</option>
-                ) : null}
-              </select>
+                invalid={Boolean(shownError("city"))}
+                describedBy={shownError("city") ? "city-error" : undefined}
+                onBlur={() => markDirty("city")}
+                onChange={setCity}
+                placeholder={messages.listingForm.selectCity}
+                options={[
+                  { value: "", label: messages.listingForm.selectCity },
+                  ...GEORGIAN_CITIES.map((c) => ({ value: c, label: c })),
+                  ...((GEORGIAN_CITIES as readonly string[]).includes(city) ||
+                  !city
+                    ? []
+                    : [{ value: city, label: city }]),
+                ]}
+              />
+              <FieldErrorText id="city-error" message={shownError("city")} />
             </div>
 
             <FormField
@@ -426,6 +556,8 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
               min={0}
               max={80}
               value={experienceYears}
+              error={shownError("experienceYears")}
+              onBlur={() => markDirty("experienceYears")}
               onChange={(e) => setExperienceYears(e.target.value)}
             />
           </div>
@@ -479,6 +611,8 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
               type="number"
               min={0}
               value={hourlyRate}
+              error={shownError("hourlyRate")}
+              onBlur={() => markDirty("hourlyRate")}
               onChange={(e) => setHourlyRate(e.target.value)}
             />
           ) : null}
@@ -498,27 +632,30 @@ export function ListingForm({ mode, listing, defaultCity }: ListingFormProps) {
             id="skills"
             label={messages.listingForm.skills}
             value={skills}
+            error={shownError("skills")}
+            onBlur={() => markDirty("skills")}
             onChange={(e) => setSkills(e.target.value)}
             placeholder={messages.listingForm.skillsPlaceholder}
             hint={messages.listingForm.skillsHint}
           />
 
           <div className="space-y-1.5">
-            <label htmlFor="status" className="text-sm font-medium text-foreground">
-              {messages.listingForm.status}
-            </label>
-            <select
+            <Select
               id="status"
+              label={messages.listingForm.status}
               value={status}
-              onChange={(e) => setStatus(e.target.value as ListingStatus)}
-              className={selectClass}>
-              <option value="draft">{messages.listingForm.statusDraft}</option>
-              <option value="active">{messages.listingForm.statusActive}</option>
-              <option value="archived">
-                {messages.listingForm.statusArchived}
-              </option>
-            </select>
-            <p className="text-xs text-foreground-subtle">
+              describedBy="status-hint"
+              onChange={(next) => setStatus(next as ListingStatus)}
+              options={[
+                { value: "draft", label: messages.listingForm.statusDraft },
+                { value: "active", label: messages.listingForm.statusActive },
+                {
+                  value: "archived",
+                  label: messages.listingForm.statusArchived,
+                },
+              ]}
+            />
+            <p id="status-hint" className="text-xs text-foreground-subtle">
               {messages.listingForm.statusHint}
             </p>
           </div>

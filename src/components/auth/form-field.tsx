@@ -29,7 +29,7 @@ export function FormField({
         aria-describedby={
           error ? `${id}-error` : hint ? `${id}-hint` : undefined
         }
-        className={`${inputClass} ${error ? "border-error" : ""} ${className}`}
+        className={`${inputClass} ${error ? "border-error focus-visible:ring-error" : ""} ${className}`}
         {...props}
       />
       {hint && !error && (

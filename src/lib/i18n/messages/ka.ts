@@ -115,6 +115,7 @@ export const kaMessages = {
     },
     location: "მდებარეობა",
     openInMaps: "გახსნა Google Maps-ში",
+    loading: "განცხადება იტვირთება…",
   },
   dashboard: {
     title: "ჩემი განცხადებები",
@@ -184,8 +185,14 @@ export const kaMessages = {
     photoTooLarge: "ფოტო 5 MB-ზე ნაკლები უნდა იყოს",
     categoryRequired: "აირჩიე კატეგორია",
     titleRequired: "სათაური სავალდებულოა",
+    titleMin: "სათაური მინიმუმ 3 სიმბოლო",
+    titleMax: "სათაური მაქსიმუმ 120 სიმბოლო",
     descriptionRequired: "აღწერა მინიმუმ 10 სიმბოლო",
+    descriptionMax: "აღწერა მაქსიმუმ 5000 სიმბოლო",
     cityRequired: "აირჩიე ქალაქი",
+    experienceInvalid: "გამოცდილება უნდა იყოს მთელი რიცხვი 0-დან 80-მდე",
+    priceInvalid: "შეიყვანე სწორი თანხა",
+    skillsInvalid: "მაქსიმუმ 20 უნარი, თითო მაქსიმუმ 50 სიმბოლო",
     selectCity: "აირჩიე ქალაქი",
     mapLocation: "მდებარეობა რუკაზე (არასავალდებულო)",
     mapLocationHint: (city: string) =>

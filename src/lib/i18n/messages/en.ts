@@ -115,6 +115,7 @@ export const enMessages = {
     },
     location: "Location",
     openInMaps: "Open in Google Maps",
+    loading: "Loading listing…",
   },
   dashboard: {
     title: "My listings",
@@ -184,8 +185,14 @@ export const enMessages = {
     photoTooLarge: "Photo must be under 5 MB",
     categoryRequired: "Select a category",
     titleRequired: "Title is required",
+    titleMin: "Title must be at least 3 characters",
+    titleMax: "Title must be at most 120 characters",
     descriptionRequired: "Description must be at least 10 characters",
+    descriptionMax: "Description must be at most 5000 characters",
     cityRequired: "Select a city",
+    experienceInvalid: "Experience must be a whole number from 0 to 80",
+    priceInvalid: "Enter a valid amount",
+    skillsInvalid: "Use up to 20 skills, 50 characters each",
     selectCity: "Select a city",
     mapLocation: "Map location (optional)",
     mapLocationHint: (city: string) =>

@@ -315,3 +315,56 @@ button:disabled {
 .listing-location-map .leaflet-bottom {
   z-index: 7 !important;
 }
+
+/* Popover UA styles center the element and give it a canvas background. */
+.select-menu,
+.select-menu:popover-open {
+  margin: 0;
+  inset: unset;
+  width: auto;
+  height: auto;
+  padding: 0.25rem;
+  overflow: auto;
+  color: var(--text-primary);
+  background-color: var(--background-elevated);
+  border: 1px solid var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.select-menu-down {
+  animation: select-menu-in 140ms var(--ease-default);
+}
+
+.select-menu-up {
+  animation: select-menu-in-up 140ms var(--ease-default);
+}
+
+@keyframes select-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes select-menu-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .select-menu-down,
+  .select-menu-up {
+    animation: none;
+  }
+}

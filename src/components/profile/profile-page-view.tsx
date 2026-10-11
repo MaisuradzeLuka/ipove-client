@@ -27,6 +27,8 @@ import {
   publicUserProfilePath,
 } from "@/lib/users/types";
 
+type ProfileField = "name" | "lastname" | "phone" | "city" | "address";
+
 export function ProfilePageView() {
   const messages = useMessages();
   const missingLabels = useMemo(
@@ -51,6 +53,9 @@ export function ProfilePageView() {
   const [city, setCity] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState<Partial<Record<ProfileField, boolean>>>(
+    {},
+  );
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [listings, setListings] = useState<Listing[]>([]);
@@ -84,8 +89,15 @@ export function ProfilePageView() {
     setAddress(user.address ?? "");
     setCity(user.city ?? "");
     setAvatarUrl(user.avatar);
+    setDirty({});
     void loadListings();
   }, [user, loadListings]);
+
+  function markDirty(field: ProfileField) {
+    setDirty((current) =>
+      current[field] ? current : { ...current, [field]: true },
+    );
+  }
 
   if (isLoading || !user) {
     return <ProfilePageSkeleton />;
@@ -106,17 +118,37 @@ export function ProfilePageView() {
     user.phoneNumber != null ? formatPhoneDisplay(user.phoneNumber) : null;
   const previewListings = listings.slice(0, 3);
 
+  const profileErrors: Partial<Record<ProfileField, string>> = {
+    name: name.trim() ? undefined : messages.profile.missingName,
+    lastname: lastname.trim() ? undefined : messages.profile.missingLastname,
+    phone:
+      phoneNumber.trim() && Number.isFinite(Number(phoneNumber))
+        ? undefined
+        : messages.profile.phoneInvalid,
+    city: city.trim() ? undefined : messages.profile.missingCity,
+    address: address.trim() ? undefined : messages.profile.missingAddress,
+  };
+
+  function shownProfileError(field: ProfileField) {
+    return dirty[field] ? profileErrors[field] : undefined;
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!user) return;
     setError(null);
     setSuccess(null);
+    setDirty({
+      name: true,
+      lastname: true,
+      phone: true,
+      city: true,
+      address: true,
+    });
+
+    if (Object.values(profileErrors).some(Boolean)) return;
 
     const phone = Number(phoneNumber);
-    if (!Number.isFinite(phone)) {
-      setError(messages.profile.phoneInvalid);
-      return;
-    }
 
     setSubmitting(true);
     const err = await updateProfile(
@@ -233,6 +265,8 @@ export function ProfilePageView() {
                   label={messages.profile.firstName}
                   required
                   value={name}
+                  error={shownProfileError("name")}
+                  onBlur={() => markDirty("name")}
                   onChange={(e) => setName(e.target.value)}
                 />
                 <FormField
@@ -240,6 +274,8 @@ export function ProfilePageView() {
                   label={messages.profile.lastName}
                   required
                   value={lastname}
+                  error={shownProfileError("lastname")}
+                  onBlur={() => markDirty("lastname")}
                   onChange={(e) => setLastname(e.target.value)}
                 />
               </div>
@@ -267,6 +303,8 @@ export function ProfilePageView() {
                   required
                   hint={messages.profile.phoneHint}
                   value={phoneNumber}
+                  error={shownProfileError("phone")}
+                  onBlur={() => markDirty("phone")}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                 />
                 <FormField
@@ -274,6 +312,8 @@ export function ProfilePageView() {
                   label={messages.profile.city}
                   required
                   value={city}
+                  error={shownProfileError("city")}
+                  onBlur={() => markDirty("city")}
                   onChange={(e) => setCity(e.target.value)}
                 />
               </div>
@@ -283,6 +323,8 @@ export function ProfilePageView() {
                   label={messages.profile.address}
                   required
                   value={address}
+                  error={shownProfileError("address")}
+                  onBlur={() => markDirty("address")}
                   onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
